@@ -17,7 +17,6 @@ app = Flask(__name__)
 @app.route('/createaccount', methods = ['POST'])
 def createaccount():
 	data = request.get_json()
-
 	firstname = data['firstname']
 	lastname = data['lastname']
 	email = data['email']
@@ -26,8 +25,8 @@ def createaccount():
 	dob = data['dob']
 	jobtitle = data['jobtitle']
 	city = data['city']
-	#sqls.insert_value(firstname, lastname, email, password, gender,dob, jobtitle, city)
-	#sqls.create_user_expense_table(email)
+	sqls.insert_value(firstname, lastname, email, password, gender,dob, jobtitle, city)
+	sqls.create_user_expense_table(email)
 	return jsonify({'result':'success', 'token':'1234'})
 
 

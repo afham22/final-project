@@ -9,6 +9,7 @@ conn = sqlite3.connect('budgetify.db')
 
 
 def create_user_records_table():
+     conn = sqlite3.connect('budgetify.db')
      c=conn.cursor()
      c.execute('''CREATE TABLE  IF NOT EXISTS USER_RECORD
          (User_ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,14 +23,17 @@ def create_user_records_table():
          City       VARCHAR(35));''')
      print("Table created successfully")
      conn.commit()
+     conn.close()
 
-     
+
 
 def insert_value(firstname, lastname, email, password, gender,dob, jobtitle, city):
+     conn = sqlite3.connect('budgetify.db')
      c=conn.cursor()
      c.execute("INSERT INTO USER_RECORD (First_name,Last_name,Email,Password,Gender,DOB,Job_title,City) VALUES (?,?,?,?,?,?,?,?)",(firstname, lastname, email, password, gender,dob, jobtitle, city))
      print("inserted succefully")
      conn.commit()
+     conn.close()
 
 def create_user_expense_table(email):
      c=conn.cursor()

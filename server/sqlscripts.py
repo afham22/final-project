@@ -27,12 +27,11 @@ def create_user_records_table():
 
 def insert_value(firstname, lastname, email, password, gender,dob, jobtitle, city):
      c=conn.cursor()
-     c.execute("INSERT INTO USER_RECORD (First_name,Last_name,Email,Password,Gender,DOB,Job_title,City) VALUES ('?','?','?','?','?','?','?','?')",firstname, lastname, email, password, gender,dob, jobtitle, city)
+     c.execute("INSERT INTO USER_RECORD (First_name,Last_name,Email,Password,Gender,DOB,Job_title,City) VALUES (?,?,?,?,?,?,?,?)",(firstname, lastname, email, password, gender,dob, jobtitle, city))
      print("inserted succefully")
      conn.commit()
-create_user_records_table()
-insert_value()
 
+conn.close()
 
 
 # many=[  ('shah','rukh','shahrukh@gmail.com','sawad2051','M','03-11-1956','king','bombay')]

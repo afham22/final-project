@@ -5,9 +5,9 @@ import sqlite3
 # print('Database created')
 
 # conn = sqlite3.connect('budgetify.db')
+conn = sqlite3.connect('budgetify.db')
 
 def create_user_records_table():
-    conn = sqlite3.connect('budgetify.db')
     conn.execute('''CREATE TABLE  IF NOT EXISTS USER_RECORD
          (User_ID INTEGER PRIMARY KEY AUTOINCREMENT,
          First_name VARCHAR(50),
@@ -19,4 +19,4 @@ def create_user_records_table():
          Job_title  VARCHAR(30),
          City       VARCHAR(35));''')
     print("Table created successfully")
-    conn.close()
+conn.close()

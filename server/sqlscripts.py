@@ -19,4 +19,3 @@ def create_user_records_table():
          Job_title  VARCHAR(30),
          City       VARCHAR(35));''')
     print("Table created successfully")
-conn.close()

@@ -25,7 +25,7 @@ def create_user_records_table():
      conn.commit()
      conn.close()
 
-     
+
 
 def insert_value(firstname, lastname, email, password, gender,dob, jobtitle, city):
      conn = sqlite3.connect('budgetify.db')
@@ -35,7 +35,22 @@ def insert_value(firstname, lastname, email, password, gender,dob, jobtitle, cit
      conn.commit()
      conn.close()
 
-# conn.close()
+def create_user_expense_table(email):
+     c=conn.cursor()
+     c.execute("SELECT User_ID,Last_name from USER_RECORD WHERE Email=(?)",(email,))
+     item=c.fetchone()
+     usertablename=str(item[1])+"_"+str(item[0])
+     print(usertablename)
+     c.execute("CREATE TABLE %s (Trans_ID INTEGER,Date VARCHAR(10),Catogory VARCHAR(50),Amount VARCHAR(50));"%(usertablename))
+     print("transaction table created for "+usertablename)
+     conn.commit
+create_user_expense_table('shahrukh@gmail.com')
+
+
+
+     
+
+conn.close()
 
 
 # many=[  ('shah','rukh','shahrukh@gmail.com','sawad2051','M','03-11-1956','king','bombay')]

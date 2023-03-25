@@ -5,7 +5,7 @@ import sqlite3
 # print('Database created')
 
 # conn = sqlite3.connect('budgetify.db')
-conn = sqlite3.connect('budgetify.db')
+# conn = sqlite3.connect('budgetify.db')
 
 
 def create_user_records_table():
@@ -36,6 +36,7 @@ def insert_value(firstname, lastname, email, password, gender,dob, jobtitle, cit
      conn.close()
 
 def create_user_expense_table(email):
+     conn = sqlite3.connect('budgetify.db')
      c=conn.cursor()
      c.execute("SELECT User_ID,Last_name from USER_RECORD WHERE Email=(?)",(email,))
      item=c.fetchone()
@@ -44,13 +45,14 @@ def create_user_expense_table(email):
      c.execute("CREATE TABLE %s (Trans_ID INTEGER,Date VARCHAR(10),Catogory VARCHAR(50),Amount VARCHAR(50));"%(usertablename))
      print("transaction table created for "+usertablename)
      conn.commit
+     conn.close()
 create_user_expense_table('shahrukh@gmail.com')
 
 
 
      
 
-conn.close()
+# conn.close()
 
 
 # many=[  ('shah','rukh','shahrukh@gmail.com','sawad2051','M','03-11-1956','king','bombay')]

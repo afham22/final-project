@@ -55,4 +55,3 @@ def check_password(email):
      conn.commit
      conn.close()
      return(item[0])
-# csreate_user_expense_table('shahrukh@gmail.com')

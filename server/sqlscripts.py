@@ -31,6 +31,21 @@ def insert_value(firstname, lastname, email, password, gender,dob, jobtitle, cit
      print("inserted succefully")
      conn.commit()
 
+def create_user_expense_table(email):
+     c=conn.cursor()
+     c.execute("SELECT User_ID,Last_name from USER_RECORD WHERE Email=(?)",(email,))
+     item=c.fetchone()
+     usertablename=str(item[1])+"_"+str(item[0])
+     print(usertablename)
+     c.execute("CREATE TABLE %s (Trans_ID INTEGER,Date VARCHAR(10),Catogory VARCHAR(50),Amount VARCHAR(50));"%(usertablename))
+     print("transaction table created for "+usertablename)
+     conn.commit
+create_user_expense_table('shahrukh@gmail.com')
+
+
+
+     
+
 conn.close()
 
 

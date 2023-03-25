@@ -27,8 +27,8 @@ def createaccount():
 	dob = data['dob']
 	jobtitle = data['jobtitle']
 	city = data['city']
-	sqls.insert_value(firstname, lastname, email, password, gender,dob, jobtitle, city)
-	return firstname + lastname
+	#sqls.insert_value(firstname, lastname, email, password, gender,dob, jobtitle, city)
+	return jsonify({'result':'success', 'token':'1234'})
 
 
 @app.route('/login', methods = ['POST'])
@@ -46,10 +46,6 @@ def login():
 		return 'Invalid password', 401
 
 
-
-
-
-
 @app.route('/PPPCalculation', methods = ['GET'])
 def PPPCalc():
 	return 'OOK'
@@ -60,6 +56,16 @@ def demoCompare():
 	return 'Hello'
 
 
+
+@app.route('/checkEmail', methods = ['POST'])
+def checkEmail():
+	data = request.get_json()
+	email = data['email']
+
+	if email == 'test1@test1.com':
+		return 'Email Exists', 403
+	else:
+		return '', 200
 
 # A simple function to calculate the square of a number
 # the number to be squared is sent in the URL when we use GET

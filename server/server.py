@@ -7,6 +7,10 @@ from decouple import config
 # creating a Flask app
 app = Flask(__name__)
 
+#--Creating userrecord table--
+sqls.create_user_records_table()
+
+
 # on the terminal type: curl http://127.0.0.1:5000/
 # returns hello world when we use GET.
 # returns the data that we send when we use POST.

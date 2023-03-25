@@ -46,30 +46,13 @@ def create_user_expense_table(email):
      print("transaction table created for "+usertablename)
      conn.commit
      conn.close()
-create_user_expense_table('shahrukh@gmail.com')
 
-
-
-     
-
-# conn.close()
-
-
-# many=[  ('shah','rukh','shahrukh@gmail.com','sawad2051','M','03-11-1956','king','bombay')]
-
-# def insert_many(many):
-#      conn = sqlite3.connect('budgetify.db')
-#      c=conn.cursor()
-#      c.executemany("INSERT INTO budgetify VALUES (?,?,?,?,?,?,?,?)",many)
-#      print("inserted succesufuuly")
-#      conn.commit()
-#      conn.close()
-
-
-
-
-
-
-
-
-conn.close()
+def check_password(email):
+     conn = sqlite3.connect('budgetify.db')
+     c=conn.cursor()
+     c.execute("SELECT Password from USER_RECORD WHERE Email=(?)",(email,))
+     item=c.fetchone()
+     conn.commit
+     conn.close()
+     return(item[0])
+# csreate_user_expense_table('shahrukh@gmail.com')

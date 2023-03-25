@@ -9,8 +9,7 @@ from flask import Flask, jsonify, request, make_response
 app = Flask(__name__)
 
 #--Creating userrecord table--
-sqls.create_user_records_table()
-
+# sqls.create_user_records_table()
 
 # on the terminal type: curl http://127.0.0.1:5000/
 # returns hello world when we use GET.
@@ -28,23 +27,20 @@ def createaccount():
 	jobtitle = data['jobtitle']
 	city = data['city']
 	#sqls.insert_value(firstname, lastname, email, password, gender,dob, jobtitle, city)
+	#sqls.create_user_expense_table(email)
 	return jsonify({'result':'success', 'token':'1234'})
 
 
 @app.route('/login', methods = ['POST'])
 def login():
-	data = request.get_json()
-
-	pass1 = 'test1234'
-
+	data = request.get_json()	
 	email = data['email']
 	password = data['password']
-
-	if password == pass1:
+	checkpass=sqls.check_password(email)
+	if password == checkpass:
 		return 'Success', 200
 	else:
 		return 'Invalid password', 401
-
 
 @app.route('/PPPCalculation', methods = ['GET'])
 def PPPCalc():

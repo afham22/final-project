@@ -23,8 +23,11 @@ def createaccount():
 	lastname = data['lastname']
 	email = data['email']
 	password = data['password']
-
-	print(firstname,lastname,email,password)
+	gender = data['gender']
+	dob = data['dob']
+	jobtitle = data['jobtitle']
+	city = data['city']
+	sqls.insert_value(firstname, lastname, email, password, gender,dob, jobtitle, city)
 	return firstname + lastname
 
 

@@ -1,2 +1,2 @@
 # final-project
-# Budgetify
+# Budgetify App

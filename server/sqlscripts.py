@@ -23,7 +23,7 @@ def create_user_records_table():
      print("Table created successfully")
      conn.commit()
 
-     
+
 
 def insert_value(firstname, lastname, email, password, gender,dob, jobtitle, city):
      c=conn.cursor()

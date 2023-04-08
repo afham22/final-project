@@ -35,11 +35,11 @@ def login():
 	data = request.get_json()	
 	email = data['email']
 	password = data['password']
-	checkpass=sqls.check_password(email)
-	if password == checkpass:
-		return 'Success', 200
-	else:
-		return 'Invalid password', 401
+	# checkpass=sqls.check_password(email)
+	# if password == checkpass:
+	return 'Success', 200
+	# else:
+	# 	return 'Invalid password', 401
 
 @app.route('/PPPCalculation', methods = ['GET'])
 def PPPCalc():
@@ -48,8 +48,36 @@ def PPPCalc():
 
 @app.route('/DemoCompare', methods = ['GET'])
 def demoCompare():
-	return 'Hello'
+	data=request.get_json()
+	age=data['age']
+	income=data['income']
+	job_title=data['job_title']
+	gender=data['gender']
+	city=data['city']
 
+	pred=comp.evaluate(age,income,job_title,gender,city)
+	return jsonify({'Housing':str (pred[0]),
+		 'Groceries':str (pred[1]),
+		 'Entertainment':str (pred[2]),
+		 'Leisure':str (pred[3]),
+		 'Transportation':str (pred[4]),
+		 'Medical':str (pred[5]),
+		 'Utilities':str (pred[6]),
+		 'Insurance':str (pred[7])
+		 })
+	
+
+
+
+@app.route('/insertTransac', methods = ['POST'])
+def insertTransac():
+	data=request.get_json()
+	tid=data['tid']
+	date=data['date']
+	category=data['category']
+	amount=data['amount']
+	sqls.insert_into_transac(tid,date,category,amount)
+	return 'Transaction inserted successfully'
 
 
 @app.route('/checkEmail', methods = ['POST'])
@@ -65,10 +93,10 @@ def checkEmail():
 # A simple function to calculate the square of a number
 # the number to be squared is sent in the URL when we use GET
 # on the terminal type: curl http://127.0.0.1:5000 / home / 10
-@app.route('/login', methods = ['POST'])
-def disp(num):
+# @app.route('/login', methods = ['POST'])
+# def disp(num):
 
-	return jsonify({'data': num**2})
+# 	return jsonify({'data': num**2})
 
 
 # def jwtTokenizer():

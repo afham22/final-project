@@ -4,7 +4,7 @@ def create_databse():
     conn=mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996"
+        passwd="123456"
     )
     c=conn.cursor()
     c.execute("CREATE DATABASE IF NOT EXISTS budgetify")
@@ -12,12 +12,11 @@ def create_databse():
 
 
 
-
 def create_user_records_table():
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
+        passwd="123456",
         database="budgetify"
     )
     print("connection established")
@@ -43,7 +42,7 @@ def insert_value(firstname, lastname, email, password, gender,dob, jobtitle, cit
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
+        passwd="123456",
         database="budgetify"
     )
     print("connection established")
@@ -58,7 +57,7 @@ def check_password(email):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
+        passwd="123456",
         database="budgetify"
     )
     print("connection established")
@@ -76,7 +75,7 @@ def create_user_expense_table(email):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
+        passwd="123456",
         database="budgetify"
     )
     print("connection established")

@@ -1,7 +1,7 @@
 import mysql.connector
 from datetime import datetime, date, time,timedelta
 
-def create_databse():
+def create_database():
     conn=mysql.connector.connect(
         host="localhost",
         user="root",
@@ -51,12 +51,12 @@ def createAccount(firstname, lastname, email, password, gender,dob, jobtitle, ci
     c.execute("INSERT INTO USER_RECORD (First_name,Last_name,Email,Password,Gender,DOB,Job_title,City) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(firstname, lastname, email, password, gender,dob, jobtitle, city))
     c.execute("SELECT User_ID,Last_name from USER_RECORD WHERE Email=(%s) LIMIT 0,1",(email,))
     item=c.fetchone()
-    usertablename=str(item[1])+"_"+str(item[0])
-    print(usertablename)
+    uid=str(item[1])
+    lname=str(item[0])
     print("inserted succefully")
     conn.commit()
     conn.close()
-    return usertablename
+    return uid,lname
 
 
 def check_password(email):

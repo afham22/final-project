@@ -77,7 +77,7 @@ def check_password(email):
 
 
 
-def create_user_expense_table(email):
+def create_user_expense_table(uid,lname):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
@@ -86,9 +86,7 @@ def create_user_expense_table(email):
     )
     print("connection established")
     c=conn.cursor()
-    c.execute("SELECT User_ID,Last_name from USER_RECORD WHERE Email=(%s) LIMIT 0,1",(email,))
-    item=c.fetchone()
-    usertablename=str(item[1])+"_"+str(item[0])
+    usertablename=uid+"_"+lname
     print(usertablename)
     query = "CREATE TABLE {} (Trans_ID INT,Date DATETIME,Catagory VARCHAR(50),Amount INT)".format(usertablename)
     c.execute(query)

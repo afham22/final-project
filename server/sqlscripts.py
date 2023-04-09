@@ -5,7 +5,7 @@ def create_databse():
     conn=mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996"
+        passwd="123456"
     )
     c=conn.cursor()
     c.execute("CREATE DATABASE IF NOT EXISTS budgetify")
@@ -13,12 +13,11 @@ def create_databse():
 
 
 
-
 def create_user_records_table():
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
+        passwd="123456",
         database="budgetify"
     )
     print("connection established")
@@ -44,8 +43,8 @@ def createAccount(firstname, lastname, email, password, gender,dob, jobtitle, ci
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
-        database="test"
+        passwd="123456",
+        database="budgetify"
     )
     print("connection established")
     c=conn.cursor()
@@ -64,7 +63,7 @@ def check_password(email):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
+        passwd="123456",
         database="budgetify"
     )
     print("connection established")
@@ -82,7 +81,7 @@ def create_user_expense_table(email):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
+        passwd="123456",
         database="budgetify"
     )
     print("connection established")
@@ -101,8 +100,8 @@ def sumOfExpenseForDate(Tid):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
-        database="test"
+        passwd="123456",
+        database="budgetify"
     )
     print("connection established")
     c=conn.cursor()
@@ -120,8 +119,8 @@ def insert_value_trans(transid,date,cat,amo,lastname,userid):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
-        database="test"
+        passwd="123456",
+        database="budgetify"
     )
     print("connection established")
     c=conn.cursor()

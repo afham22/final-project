@@ -56,8 +56,6 @@ def createaccount():
 	jobtitle = data['jobtitle']
 	city = data['city']
 	user_id,lastname=sqls.createAccount(firstname, lastname, email, password, gender,dob, jobtitle, city)
-	payload = {'user_id':user_id,'lastname':lastname}
-	token=jwt.encode(payload,jt.private_key, algorithm='RS256')
 	sqls.create_user_expense_table(user_id,lastname)
 	return jsonify({'token':token})
 
@@ -67,11 +65,15 @@ def login():
 	data = request.get_json()	
 	email = data['email']
 	password = data['password']
-	# checkpass=sqls.check_password(email)
-	# if password == checkpass:
-	return 'Success', 200
-	# else:
-	# 	return 'Invalid password', 401
+	item=sqls.check_password(email)
+	if item==None:
+		return 'User does not exist'
+	elif password == item[0]:
+		payload = {'user_id':item[1],'lastname':item[2]}
+		token=jwt.encode(payload,jt.private_key, algorithm='RS256')
+		return jsonify({'token':token})
+	else:
+		return 'Invalid password', 401
 
 @app.route('/PPPCalculation', methods = ['GET'])
 @auth_required('PPPCalculation')

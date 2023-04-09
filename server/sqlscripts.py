@@ -72,7 +72,10 @@ def check_password(email):
     item=c.fetchone()
     conn.commit
     conn.close()
-    return(item[0],item[1],item[2])
+    if item ==None:
+        return None
+    else:
+        return(item)
 
 
 

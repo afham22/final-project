@@ -86,7 +86,7 @@ def create_user_expense_table(uid,lname):
     )
     print("connection established")
     c=conn.cursor()
-    usertablename=uid+"_"+lname
+    usertablename=lname+"_"+uid
     print(usertablename)
     query = "CREATE TABLE {} (Trans_ID INT,Date DATETIME,Catagory VARCHAR(50),Amount INT)".format(usertablename)
     c.execute(query)

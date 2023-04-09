@@ -1,4 +1,5 @@
 import mysql.connector
+from datetime import datetime, date, time,timedelta
 
 def create_databse():
     conn=mysql.connector.connect(
@@ -38,7 +39,7 @@ def create_user_records_table():
 
 
 
-def insert_value(firstname, lastname, email, password, gender,dob, jobtitle, city):
+def createAccount(firstname, lastname, email, password, gender,dob, jobtitle, city):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
@@ -48,9 +49,14 @@ def insert_value(firstname, lastname, email, password, gender,dob, jobtitle, cit
     print("connection established")
     c=conn.cursor()
     c.execute("INSERT INTO USER_RECORD (First_name,Last_name,Email,Password,Gender,DOB,Job_title,City) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(firstname, lastname, email, password, gender,dob, jobtitle, city))
+    c.execute("SELECT User_ID,Last_name from USER_RECORD WHERE Email=(%s) LIMIT 0,1",(email,))
+    item=c.fetchone()
+    usertablename=str(item[1])+"_"+str(item[0])
+    print(usertablename)
     print("inserted succefully")
     conn.commit()
     conn.close()
+    return usertablename
 
 
 def check_password(email):
@@ -90,3 +96,37 @@ def create_user_expense_table(email):
     conn.commit
     conn.close()
 
+def sumOfExpenseForDate(Tid):
+    conn =mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="123456",
+        database="budgetify"
+    )
+    print("connection established")
+    c=conn.cursor()
+    current_date = date.today()
+    new_date = current_date - timedelta(days=30)
+    print("New date:", new_date.strftime("%Y-%m-%d"))
+    c.execute("SELECT Catagory,SUM(Amount) FROM test_1 WHERE Trans_ID=(%s) AND Date BETWEEN (%s) AND (%s) GROUP BY Catagory;",(Tid,new_date,current_date))
+    item=c.fetchall()
+    print(item)
+    conn.commit
+    conn.close()
+
+
+def insert_value_trans(transid,date,cat,amo,lastname,userid):
+    conn =mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="123456",
+        database="budgetify"
+    )
+    print("connection established")
+    c=conn.cursor()
+    usertablename=lastname+"_"+str(userid)
+    sql=("INSERT INTO {} (Trans_ID,Date,Catagory,Amount) VALUES (%s,%s,%s,%s)".format(usertablename))
+    c.execute(sql,(transid,date,cat,amo))
+    print("inserted succefully")
+    conn.commit()
+    conn.close()

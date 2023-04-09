@@ -76,6 +76,25 @@ def check_password(email):
         return None
     else:
         return(item)
+    
+
+def check_email(email):
+    conn =mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="123456",
+        database="budgetify"
+    )
+    print("connection established")
+    c= conn.cursor()
+    sql = "SELECT * FROM USER_RECORD WHERE email = %s"
+    c.execute(sql, (email,))
+    result = c.fetchall()
+    conn.close()
+    if len(result) > 0:
+        return True
+    else:
+        return False
 
 
 
@@ -91,7 +110,7 @@ def create_user_expense_table(uid,lname):
     c=conn.cursor()
     usertablename=lname+"_"+uid
     print(usertablename)
-    query = "CREATE TABLE {} (Trans_ID INT,Date DATETIME,Catagory VARCHAR(50),Amount INT)".format(usertablename)
+    query = "CREATE TABLE {} (Trans_ID INT,Date DATETIME,Category VARCHAR(50),Amount INT)".format(usertablename)
     c.execute(query)
     print("transaction table created for "+usertablename)
     conn.commit
@@ -109,7 +128,7 @@ def sumOfExpenseForDate(Tid):
     current_date = date.today()
     new_date = current_date - timedelta(days=30)
     print("New date:", new_date.strftime("%Y-%m-%d"))
-    c.execute("SELECT Catagory,SUM(Amount) FROM test_1 WHERE Trans_ID=(%s) AND Date BETWEEN (%s) AND (%s) GROUP BY Catagory;",(Tid,new_date,current_date))
+    c.execute("SELECT Category,SUM(Amount) FROM test_1 WHERE Trans_ID=(%s) AND Date BETWEEN (%s) AND (%s) GROUP BY Category;",(Tid,new_date,current_date))
     item=c.fetchall()
     print(item)
     conn.commit
@@ -126,8 +145,9 @@ def insert_value_trans(transid,date,cat,amo,lastname,userid):
     print("connection established")
     c=conn.cursor()
     usertablename=lastname+"_"+str(userid)
-    sql=("INSERT INTO {} (Trans_ID,Date,Catagory,Amount) VALUES (%s,%s,%s,%s)".format(usertablename))
+    sql=("INSERT INTO {} (Trans_ID,Date,Category,Amount) VALUES (%s,%s,%s,%s)".format(usertablename))
     c.execute(sql,(transid,date,cat,amo))
     print("inserted succefully")
     conn.commit()
     conn.close()
+

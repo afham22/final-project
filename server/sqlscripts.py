@@ -68,11 +68,11 @@ def check_password(email):
     )
     print("connection established")
     c=conn.cursor()
-    c.execute("SELECT Password from USER_RECORD WHERE Email=(%s)",(email,))
+    c.execute("SELECT Password,User_ID,Last_name from USER_RECORD WHERE Email=(%s)",(email,))
     item=c.fetchone()
     conn.commit
     conn.close()
-    return(item[0])
+    return(item[0],item[1],item[2])
 
 
 

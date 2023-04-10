@@ -57,7 +57,7 @@ def createaccount():
 	city = data['city']
 	user_id,lastname=sqls.createAccount(firstname, lastname, email, password, gender,dob, jobtitle, city)
 	sqls.create_user_expense_table(user_id,lastname)
-	return jsonify({'token':token})
+	return 'Account created successfully',200
 
 
 @app.route('/login', methods = ['POST'])
@@ -106,13 +106,14 @@ def PPPCalc():
 @app.route('/insertTransac', methods = ['POST'])
 @auth_required('insertTransac')
 def insertTransac():
-	# user_id = request.decoded_token.get('user_id')
-	# data=request.get_json()
-	# tid=data['tid']
-	# date=data['date']
-	# category=data['category']
-	# amount=data['amount']
-	# sqls.insert_into_transac(user_id,tid,date,category,amount)
+	user_id = request.decoded_token.get('user_id')
+	lastname = request.decoded_token.get('lastname')
+	data=request.get_json()
+	tid=data['tid']
+	date=data['date']
+	category=data['category']
+	amount=data['amount']
+	sqls.insert_value_trans(tid,date,category,amount,lastname,user_id)
 	return 'Transaction inserted successfully'
 
 
@@ -120,11 +121,10 @@ def insertTransac():
 def checkEmail():
 	data = request.get_json()
 	email = data['email']
-
-	if email == 'test1@test1.com':
-		return 'Email Exists', 403
-	else:
+	if sqls.check_email(email)==False:
 		return '', 200
+	else:
+		return 'Email Exist', 403
 
 # A simple function to calculate the square of a number
 # the number to be squared is sent in the URL when we use GET

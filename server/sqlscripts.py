@@ -144,10 +144,36 @@ def insert_value_trans(transid,date,cat,amo,lastname,userid):
     )
     print("connection established")
     c=conn.cursor()
-    usertablename=lastname+"_"+str(userid)
+    usertablename=str(userid)+"_"+lastname
     sql=("INSERT INTO {} (Trans_ID,Date,Category,Amount) VALUES (%s,%s,%s,%s)".format(usertablename))
     c.execute(sql,(transid,date,cat,amo))
     print("inserted succefully")
     conn.commit()
     conn.close()
 
+
+def test():
+    conn =mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="123456",
+        database="budgetify"
+    )
+    print("connection established")
+    c=conn.cursor()
+    c.execute("SELECT user_id, Last_name FROM user_record;")
+    item=c.fetchall()
+    current_date = date.today()
+    new_date = current_date - timedelta(days=30)
+
+
+    for i in range(len(item)):
+        tablename=str(item[i][0])+'_'+str(item[i][1])
+        print(tablename)
+        sql="SELECT Category,SUM(Amount) FROM {} WHERE Date BETWEEN (%s) AND (%s) GROUP BY Category;".format(tablename)
+        c.execute(sql,(new_date,current_date))
+        dar=c.fetchall()
+        print(dar)
+    conn.commit
+    conn.close()
+test()

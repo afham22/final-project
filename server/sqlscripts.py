@@ -116,7 +116,7 @@ def create_user_expense_table(uid,lname):
     conn.commit
     conn.close()
 
-def sumOfExpenseForDate(Tid):
+def sumOfExpenseForDate():
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
@@ -128,7 +128,7 @@ def sumOfExpenseForDate(Tid):
     current_date = date.today()
     new_date = current_date - timedelta(days=30)
     print("New date:", new_date.strftime("%Y-%m-%d"))
-    c.execute("SELECT Category,SUM(Amount) FROM test_1 WHERE Trans_ID=(%s) AND Date BETWEEN (%s) AND (%s) GROUP BY Category;",(Tid,new_date,current_date))
+    c.execute("SELECT Category,SUM(Amount) FROM test_1 WHERE Date BETWEEN (%s) AND (%s) GROUP BY Category;",(new_date,current_date))
     item=c.fetchall()
     print(item)
     conn.commit
@@ -185,4 +185,20 @@ def test():
         print(dar)
     conn.commit
     conn.close()
-test()
+
+
+def delete_value_trans(transid,lastname,userid):
+    conn =mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="123456",
+        database="budgetify"
+    )
+    print("connection established")
+    c=conn.cursor()
+    usertablename=str(userid)+"_"+lastname
+    sql=("DELETE FROM {} WHERE Trans_ID = (%s)".format(usertablename))
+    c.execute(sql,(str(transid),))
+    print("T_ID ",transid+"of table",usertablename,"deleted succefully")
+    conn.commit()
+    conn.close()

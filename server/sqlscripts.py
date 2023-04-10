@@ -163,15 +163,24 @@ def test():
     c=conn.cursor()
     c.execute("SELECT user_id, Last_name FROM user_record;")
     item=c.fetchall()
-    current_date = date.today()
-    new_date = current_date - timedelta(days=30)
+
+    today = datetime.date.today()
+    # date_str = "2022-01-10"
+    # today = datetime.datetime.strptime(date_str, "%Y-%m-%d")
+    if today.month == 1:
+        first_day_of_month = datetime.date(today.year - 1, 12, 1)
+    else:
+        first_day_of_month = datetime.date(today.year, today.month - 1, 1)
+
+    last_day_of_month = first_day_of_month.replace(day=28) + datetime.timedelta(days=4)
+    last_day_of_month = last_day_of_month - datetime.timedelta(days=last_day_of_month.day)
 
 
     for i in range(len(item)):
         tablename=str(item[i][0])+'_'+str(item[i][1])
         print(tablename)
         sql="SELECT Category,SUM(Amount) FROM {} WHERE Date BETWEEN (%s) AND (%s) GROUP BY Category;".format(tablename)
-        c.execute(sql,(new_date,current_date))
+        c.execute(sql,(first_day_of_month,last_day_of_month))
         dar=c.fetchall()
         print(dar)
     conn.commit

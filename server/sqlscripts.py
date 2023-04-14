@@ -37,7 +37,7 @@ def create_user_records_table():
 
 
 
-def createAccount(firstname, lastname, email, password, gender,dob, jobtitle, city):
+def createAccount(firstname, lastname, email, password, gender,dob, jobtitle,Income, city):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
@@ -45,7 +45,7 @@ def createAccount(firstname, lastname, email, password, gender,dob, jobtitle, ci
         database="budgetify"
     )
     c=conn.cursor()
-    c.execute("INSERT INTO USER_RECORD (First_name,Last_name,Email,Password,Gender,DOB,Job_title,City) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(firstname, lastname, email, password, gender,dob, jobtitle, city))
+    c.execute("INSERT INTO USER_RECORD (First_name,Last_name,Email,Password,Gender,DOB,Job_title,Income,City) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",(firstname, lastname, email, password, gender,dob, jobtitle,Income, city))
     c.execute("SELECT User_ID,Last_name from USER_RECORD WHERE Email=(%s) LIMIT 0,1",(email,))
     item=c.fetchone()
     uid=str(item[1])
@@ -227,9 +227,9 @@ def demo(UserId):
     my_list=list((item[0]))
     my_list.pop()
     my_list.append(age_in_years)
-    return my_list
     conn.commit
     conn.close()
+    return my_list
 
 def get_previous_n_months(n):
      today = datetime.date.today()

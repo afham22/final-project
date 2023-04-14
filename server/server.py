@@ -1,16 +1,14 @@
-import sqlscripts as sqls,tokenjwt as jt
-# Using flask to make an api
-# import necessary libraries and functions
+import sqlscripts as sqls,tokenjwt as jt,computations as comp
+
 from flask import Flask, jsonify, request, make_response
-#import config
-#import jwt
+
 import jwt
 from decouple import config
-# creating a Flask app
 app = Flask(__name__)
 
 #--Creating userrecord table--
 # sqls.create_user_records_table()
+
 def auth_required(endpoint_name):
     def decorated(view_func):
         def wrapper(*args, **kwargs):
@@ -38,12 +36,6 @@ def auth_required(endpoint_name):
 
     return decorated
 
-
-
-
-# on the terminal type: curl http://127.0.0.1:5000/
-# returns hello world when we use GET.
-# returns the data that we send when we use POST.
 @app.route('/createaccount', methods = ['POST'])
 def createaccount():
 	data = request.get_json()
@@ -80,26 +72,26 @@ def login():
 def PPPCalc():
 	return 'OOK'
 
-# @app.route('/DemoCompare', methods = ['GET'])
-# @auth_required('DemoCompare_auth')
-# def demoCompare():
-# 	data=request.get_json()
-# 	age=data['age']
-# 	income=data['income']
-# 	job_title=data['job_title']
-# 	gender=data['gender']
-# 	city=data['city']
+@app.route('/DemoCompare', methods = ['GET'])
+@auth_required('DemoCompare_auth')
+def demoCompare():
+	data=request.get_json()
+	age=data['age']
+	income=data['income']
+	job_title=data['job_title']
+	gender=data['gender']
+	city=data['city']
 
-# 	pred=comp.evaluate(age,income,job_title,gender,city)
-# 	return jsonify({'Housing':str (pred[0]),
-# 		 'Groceries':str (pred[1]),
-# 		 'Entertainment':str (pred[2]),
-# 		 'Leisure':str (pred[3]),
-# 		 'Transportation':str (pred[4]),
-# 		 'Medical':str (pred[5]),
-# 		 'Utilities':str (pred[6]),
-# 		 'Insurance':str (pred[7])
-# 		 })
+	pred=comp.evaluate(age,income,job_title,gender,city)
+	return jsonify({'Housing':str (pred[0]),
+		 'Groceries':str (pred[1]),
+		 'Entertainment':str (pred[2]),
+		 'Leisure':str (pred[3]),
+		 'Transportation':str (pred[4]),
+		 'Medical':str (pred[5]),
+		 'Utilities':str (pred[6]),
+		 'Insurance':str (pred[7])
+		 })
 	
 
 
@@ -126,15 +118,6 @@ def checkEmail():
 	else:
 		return 'Email Exist', 403
 
-# A simple function to calculate the square of a number
-# the number to be squared is sent in the URL when we use GET
-# on the terminal type: curl http://127.0.0.1:5000 / home / 10
-# @app.route('/login', methods = ['POST'])
-# def disp(num):
-
-# 	return jsonify({'data': num**2})
-
-
 
 @app.route('/token', methods = ['POST'])
 @auth_required('token_auth')
@@ -147,7 +130,8 @@ def token():
 	# b=jwt.decode(a,jt.public_key, algorithms=["RS256"])
 	# print(b)
 	return jsonify({'id':user_id,'lastname':lastname})
-# driver function
+
+
 if __name__ == '__main__':
 
 	app.run(debug = True)

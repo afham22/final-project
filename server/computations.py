@@ -3,14 +3,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import OneHotEncoder
 
-# Loading the data into a pandas dataframe
-# df = pd.read_csv('/kaggle/input/income-expenditure-demography-of-cities-in-india/Income expenditure demography.csv')
-df=pd.read_csv('dataset.csv')
-# Encoding the categorical variables using one-hot encoding
+df=pd.read_csv("dataset.csv")
+
 encoder = OneHotEncoder(sparse_output=False)
 encoded_vars = encoder.fit_transform(df[['City', 'Gender', 'Job_Title']])
 encoded_df = pd.DataFrame(encoded_vars, columns=encoder.get_feature_names_out(['City', 'Gender', 'Job_Title']))
 df = pd.concat([df, encoded_df], axis=1)
+
 df.drop(['City', 'Gender', 'Job_Title'], axis=1, inplace=True)
 
 # Splitting the data into training and testing sets
@@ -22,6 +21,7 @@ model = LinearRegression()
 # Fitting the model to the training data
 model.fit(X_train, y_train)
 print('done')
+
 # Evaluating the model on the testing data
     # score = model.score(X_test, y_test)
     # print('R^2 score:', score)

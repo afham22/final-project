@@ -90,12 +90,12 @@ def PPPCalc():
 # @app.route('/DemoCompare', methods = ['GET'])
 # @auth_required('DemoCompare_auth')
 # def demoCompare():
-# 	data=request.get_json()
-# 	age=data['age']
-# 	income=data['income']
-# 	job_title=data['job_title']
-# 	gender=data['gender']
-# 	city=data['city']
+# 	data=sqls.demo(UserId)
+# 	age=data[4]
+# 	income=data[3]
+# 	job_title=data[1]
+# 	gender=data[0]]
+# 	city=data[2]
 
 # 	pred=comp.evaluate(age,income,job_title,gender,city)
 # 	return jsonify({'Housing':str (pred[0]),

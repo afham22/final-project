@@ -227,6 +227,16 @@ def demo(UserId):
     my_list=list((item[0]))
     my_list.pop()
     my_list.append(age_in_years)
-    print(my_list)
+    return my_list
     conn.commit
     conn.close()
+
+def get_previous_n_months(n):
+     today = datetime.date.today()
+     previous_months = []
+     for i in range(n):
+        last_day_of_previous_month = today.replace(day=1) - datetime.timedelta(days=1)
+        first_day_of_previous_month = last_day_of_previous_month.replace(day=1)
+        previous_months.append((first_day_of_previous_month.strftime("%Y-%m-%d"), last_day_of_previous_month.strftime("%Y-%m-%d")))
+        today = first_day_of_previous_month
+     print(previous_months)

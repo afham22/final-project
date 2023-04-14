@@ -62,7 +62,7 @@ def createaccount():
 
 @app.route('/login', methods = ['POST'])
 def login():
-	data = request.get_json()	
+	data = request.get_json()
 	email = data['email']
 	password = data['password']
 	item=sqls.check_password(email)
@@ -78,7 +78,14 @@ def login():
 @app.route('/PPPCalculation', methods = ['GET'])
 @auth_required('PPPCalculation')
 def PPPCalc():
-	return 'OOK'
+	data = request.get_json()
+	city = data['City']
+
+	category_list = sqls.getExpense(UserId,LastName)
+
+	res= comp.PPP(category_list, city)
+
+	return res
 
 # @app.route('/DemoCompare', methods = ['GET'])
 # @auth_required('DemoCompare_auth')
@@ -100,7 +107,7 @@ def PPPCalc():
 # 		 'Utilities':str (pred[6]),
 # 		 'Insurance':str (pred[7])
 # 		 })
-	
+
 
 
 @app.route('/insertTransac', methods = ['POST'])

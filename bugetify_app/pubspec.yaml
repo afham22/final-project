@@ -31,6 +31,12 @@ dependencies:
     sdk: flutter
   email_validator: '^1.0.0'
   google_nav_bar: ^5.0.6
+  flutter_staggered_animations: ^1.0.0
+  get: ^4.6.1
+  date_picker_timeline: ^1.2.3
+  sqflite: ^2.0.2
+
+
 
 
   # The following adds the Cupertino Icons font to your application.

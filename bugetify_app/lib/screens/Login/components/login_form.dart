@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bugetify_app/app_homePage.dart';
+import 'package:bugetify_app/calendarHome.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:http/http.dart';
@@ -88,8 +89,10 @@ class _LoginState extends State<LoginForm> {
                 tag: "login_btn",
                 child: ElevatedButton(
                   onPressed: () {
-                    login(emailController.text.toString(),
-                        passwordController.text.toString());
+                    // login(emailController.text.toString(),
+                    //     passwordController.text.toString());
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => AppHome()));
                   },
                   child: Text(
                     "Login".toUpperCase(),

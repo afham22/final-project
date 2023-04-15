@@ -176,6 +176,15 @@ def insertTransac():
 	return 'Transaction inserted successfully'
 
 
+@app.route('/init', methods = ['GET'])
+@auth_required('insertTransac')
+@handle_errors
+def init():
+	user_id = request.decoded_token.get('user_id')
+	lastname = request.decoded_token.get('lastname')
+	return "hello"
+
+
 @app.route('/checkEmail', methods = ['POST'])
 @handle_errors
 def checkEmail():

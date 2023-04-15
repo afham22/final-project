@@ -3,7 +3,7 @@ import sqlscripts as sqls,tokenjwt as jt,computations as comp
 from flask import Flask, jsonify, request, make_response
 
 import jwt
-from decouple import config
+#from decouple import config
 app = Flask(__name__)
 
 #--Creating userrecord table--
@@ -136,6 +136,15 @@ def insertTransac():
 	amount=data['amount']
 	sqls.insert_value_trans(tid,date,category,amount,lastname,user_id)
 	return 'Transaction inserted successfully'
+
+
+@app.route('/init', methods = ['GET'])
+@auth_required('insertTransac')
+@handle_errors
+def init():
+	user_id = request.decoded_token.get('user_id')
+	lastname = request.decoded_token.get('lastname')
+	return "hello"
 
 
 @app.route('/checkEmail', methods = ['POST'])

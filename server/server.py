@@ -44,7 +44,7 @@ def get_gold_price():
 
 scheduler.add_job(get_dollar, trigger=CronTrigger.from_crontab('14 17 * * *'))
 scheduler.add_job(get_gold_price, trigger=CronTrigger.from_crontab('14 17 * * *'))
-scheduler.add_job(sqls.dataStoreCron, trigger=CronTrigger.from_crontab('10 18 * * *'))
+scheduler.add_job(sqls.dataStoreCron, trigger=CronTrigger.from_crontab('15 18 * * *'))
 
 
 # --Creating userrecord table--

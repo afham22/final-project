@@ -2,3 +2,4 @@
 tokenjwt.py
 **/__pycache__/
 *.log
+*.csv

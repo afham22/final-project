@@ -258,7 +258,6 @@ def dataStoreCron():
     first,last=previousDates()
     for i in range(len(item)):
         tablename=str(item[i][0])+'_'+str(item[i][1])
-        print(tablename)
         c.execute("SELECT Gender,City,Job_title,Income,DOB from USER_RECORD WHERE User_ID = %s",([str(item[i][0])]))
         x=c.fetchall()
         age_in_years=age(x[0][4])
@@ -279,7 +278,6 @@ def dataStoreCron():
             else:
                 new_list.append(0)
         my_list=my_list+new_list
-        print(my_list)   
         with open('my_csv_file.csv', mode='a', newline='') as csv_file:
             csv_writer = csv.writer(csv_file)
             csv_writer.writerow(my_list)

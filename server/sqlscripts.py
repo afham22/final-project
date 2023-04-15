@@ -243,12 +243,12 @@ def get_previous_n_months(n):
         today = first_day_of_previous_month
     return previous_months
 
-def test():
+def dataStoreCron():
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
-        database="test"
+        passwd="123456",
+        database="budgetify"
     )
     c=conn.cursor()
     order_dict = {'Housing': 1, 'Groceries': 2, 'Leisure': 3, 'Entertainment': 4, 'Transportation': 5, 'Insurance': 6, 'Medical': 7, 'Utilities': 8}
@@ -291,8 +291,8 @@ def getterExpense(UserId,lastname):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
-        database="test"
+        passwd="123456",
+        database="budgetify"
     )
     c= conn.cursor()
     usertablename=str(UserId)+"_"+lastname

@@ -247,8 +247,8 @@ def test():
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
-        database="test"
+        passwd="123456",
+        database="budgetify"
     )
     c=conn.cursor()
     order_dict = {'Housing': 1, 'Groceries': 2, 'Leisure': 3, 'Entertainment': 4, 'Transportation': 5, 'Insurance': 6, 'Medical': 7, 'Utilities': 8}
@@ -291,8 +291,8 @@ def getterExpense(UserId,lastname):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
-        passwd="Sawad9449553996",
-        database="test"
+        passwd="123456",
+        database="budgetify"
     )
     c= conn.cursor()
     usertablename=str(UserId)+"_"+lastname
@@ -318,3 +318,9 @@ def getterExpense(UserId,lastname):
     conn.commit
     conn.close()
     return expenses_dict
+
+def age(age):
+    birthdate_str = str(age)
+    birthdate = datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
+    today = datetime.date.today()
+    return today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))

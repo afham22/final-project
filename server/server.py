@@ -148,21 +148,6 @@ def checkEmail():
 	else:
 		return 'Email Exist', 403
 
-
-@app.route('/token', methods = ['POST'])
-# @handle_errors
-@auth_required('token_auth')
-def token():
-	user_id = request.decoded_token.get('user_id')
-	lastname = request.decoded_token.get('lastname')
-
-	# a=jwt.encode({'user_id': '1234'},jt.private_key, algorithm='RS256')
-	# print(a)
-	# b=jwt.decode(a,jt.public_key, algorithms=["RS256"])
-	# print(b)
-	return jsonify({'id':user_id,'lastname':lastname})
-
-
 if __name__ == '__main__':
 
 	app.run(debug = True)

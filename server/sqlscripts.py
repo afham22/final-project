@@ -251,6 +251,8 @@ def test():
         database="test"
     )
     c=conn.cursor()
+    order_dict = {'Housing': 1, 'Groceries': 2, 'Leisure': 3, 'Entertainment': 4, 'Transportation': 5, 'Insurance': 6, 'Medical': 7, 'Utilities': 8}
+    order_list = ['Housing', 'Groceries', 'Leisure', 'Entertainment', 'Transportation', 'Insurance','Medical','Utilities']
     c.execute("SELECT user_id, Last_name FROM user_record;")
     item=c.fetchall()
     first,last=previousDates()

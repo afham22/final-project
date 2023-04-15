@@ -40,11 +40,11 @@ def get_gold_price():
                 gold_price=values/28.3495
     except Exception as e:
             log.exception('An error occured: %s',str(e))
-                
+
 
 scheduler.add_job(get_dollar, trigger=CronTrigger.from_crontab('14 17 * * *'))
 scheduler.add_job(get_gold_price, trigger=CronTrigger.from_crontab('14 17 * * *'))
-scheduler.add_job(sqls.dataStoreCron, trigger=CronTrigger.from_crontab('10 18 * * *'))
+# scheduler.add_job(sqls.check_email, trigger=CronTrigger.from_crontab('06 17 * * *'))
 
 
 # --Creating userrecord table--
@@ -180,12 +180,13 @@ def insertTransac():
 
 
 @app.route('/init', methods = ['GET'])
-@auth_required('insertTransac')
+@auth_required('init')
 @handle_errors
 def init():
 	user_id = request.decoded_token.get('user_id')
 	lastname = request.decoded_token.get('lastname')
-	return jsonify({'gold':gold_price,'dollar':dollar})
+	res = sqls.getterExpense(user_id, lastname)
+	return jsonify({'gold':gold_price,'dollar':dollar},res)
 
 
 @app.route('/checkEmail', methods = ['POST'])

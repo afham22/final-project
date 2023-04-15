@@ -2,9 +2,11 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import OneHotEncoder
-
-df=pd.read_csv("dataset.csv")
-
+import json
+# Loading the data into a pandas dataframe
+# df = pd.read_csv('/kaggle/input/income-expenditure-demography-of-cities-in-india/Income expenditure demography.csv')
+df=pd.read_csv('dataset.csv')
+# Encoding the categorical variables using one-hot encoding
 encoder = OneHotEncoder(sparse_output=False)
 encoded_vars = encoder.fit_transform(df[['City', 'Gender', 'Job_Title']])
 encoded_df = pd.DataFrame(encoded_vars, columns=encoder.get_feature_names_out(['City', 'Gender', 'Job_Title']))
@@ -25,7 +27,7 @@ print('done')
 # Evaluating the model on the testing data
     # score = model.score(X_test, y_test)
     # print('R^2 score:', score)
-    
+
 
 
 def evaluate(age,income,job_title,gender,city):
@@ -47,5 +49,25 @@ def evaluate(age,income,job_title,gender,city):
     print(predictions)
 # print predicted values
     return predictions[0]
-    
+
 # train()
+
+
+def PPP(category_list, city):
+    # Load the dataset into a Pandas DataFrame
+    df = pd.read_csv('dataset.csv')
+
+    city2 = 'Bangalore'
+    city3 = city
+
+
+    # Calculate the average expenses for each category for the two cities
+    result = df.groupby(['City'])[['Housing', 'Leisure', 'Entertainment', 'Insurance', 'Medical','Transportation','Groceries','Utilities']].mean().loc[[city2]]
+    result_dest = df.groupby(['City'])[['Housing', 'Leisure', 'Entertainment', 'Insurance', 'Medical','Transportation','Groceries','Utilities']].mean().loc[[city3]]
+
+    # Calculate the ratio for each category based on the provided list
+    ratio_list = [(category, float(value) / result.loc[city2][category]) if category in result.columns else (category, 0) for category, value in category_list]
+
+    # Calculate the expenses for each category in the destination city based on the ratio list
+    expenses_city = {category: value * result_dest.loc[city3][category] for category, value in ratio_list}
+    return json.dumps(expenses_city)

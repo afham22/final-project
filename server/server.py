@@ -36,7 +36,24 @@ def auth_required(endpoint_name):
 
     return decorated
 
+
+def handle_errors(f):
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception as e:
+            response = {
+                'status_code': 500,
+                'status': 'Internal Server Error',
+                'message': str(e)
+            }
+            return jsonify(response), 500
+    wrapper.__name__ = f.__name__
+    return wrapper
+
+
 @app.route('/createaccount', methods = ['POST'])
+@handle_errors
 def createaccount():
 	data = request.get_json()
 	firstname = data['firstname']
@@ -47,14 +64,16 @@ def createaccount():
 	dob = data['dob']
 	jobtitle = data['jobtitle']
 	city = data['city']
-	user_id,lastname=sqls.createAccount(firstname, lastname, email, password, gender,dob, jobtitle, city)
+	income=data['income']
+	user_id,lastname=sqls.createAccount(firstname, lastname, email, password, gender,dob, jobtitle, income,city)
 	sqls.create_user_expense_table(user_id,lastname)
 	return 'Account created successfully',200
 
 
 @app.route('/login', methods = ['POST'])
+@handle_errors
 def login():
-	data = request.get_json()	
+	data = request.get_json()
 	email = data['email']
 	password = data['password']
 	item=sqls.check_password(email)
@@ -69,18 +88,28 @@ def login():
 
 @app.route('/PPPCalculation', methods = ['GET'])
 @auth_required('PPPCalculation')
+@handle_errors
 def PPPCalc():
-	return 'OOK'
+	user_id = request.decoded_token.get('user_id')
+	lastname = request.decoded_token.get('lastname')
+	data = request.get_json()
+	city = data['city']
+	category_list = sqls.getExpense(user_id,lastname)
+
+	res= comp.PPP(category_list, city)
+	return res
 
 @app.route('/DemoCompare', methods = ['GET'])
 @auth_required('DemoCompare_auth')
+@handle_errors
 def demoCompare():
-	data=request.get_json()
-	age=data['age']
-	income=data['income']
-	job_title=data['job_title']
-	gender=data['gender']
-	city=data['city']
+	user_id = request.decoded_token.get('user_id')
+	data=sqls.demo(user_id)
+	age=data[4]
+	income=data[3]
+	job_title=data[1]
+	gender=data[0]
+	city=data[2]
 
 	pred=comp.evaluate(age,income,job_title,gender,city)
 	return jsonify({'Housing':str (pred[0]),
@@ -92,11 +121,11 @@ def demoCompare():
 		 'Utilities':str (pred[6]),
 		 'Insurance':str (pred[7])
 		 })
-	
 
 
 @app.route('/insertTransac', methods = ['POST'])
 @auth_required('insertTransac')
+@handle_errors
 def insertTransac():
 	user_id = request.decoded_token.get('user_id')
 	lastname = request.decoded_token.get('lastname')
@@ -110,6 +139,7 @@ def insertTransac():
 
 
 @app.route('/checkEmail', methods = ['POST'])
+@handle_errors
 def checkEmail():
 	data = request.get_json()
 	email = data['email']
@@ -120,6 +150,7 @@ def checkEmail():
 
 
 @app.route('/token', methods = ['POST'])
+# @handle_errors
 @auth_required('token_auth')
 def token():
 	user_id = request.decoded_token.get('user_id')

@@ -1,13 +1,51 @@
 import sqlscripts as sqls,tokenjwt as jt,computations as comp
-
+import logging,jwt,requests
 from flask import Flask, jsonify, request, make_response
-
-import jwt
 from decouple import config
-app = Flask(__name__)
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 
-#--Creating userrecord table--
-# sqls.create_user_records_table()
+app = Flask(__name__)
+scheduler = BackgroundScheduler(daemon=True)
+
+#Logger Configuration
+log = logging.getLogger('myapp')
+log.setLevel(logging.DEBUG)
+fh = logging.FileHandler('myapp.log')
+fh.setLevel(logging.DEBUG)
+log.addHandler(fh)
+
+gold_price=''
+dollar=''
+def get_dollar():
+    try:
+        response = requests.get("https://openexchangerates.org/api/latest.json?app_id=96ad967e6fc7479a8eff532d1b8cdce4&symbols=INR")
+        if response.status_code == 200:
+            data = response.json()
+            rates = data['rates']
+            for key,values in rates.items():
+                dollar=values
+    except Exception as e:
+            log.exception('An error occured: %s',str(e))
+
+def get_gold_price():
+    try:
+        response = requests.get("https://metals-api.com/api/latest?access_key=qyu5mrfh5kb3b7m97h3xp5bxua02o9upzt294nq16k1q8qiowqgm5tm1fchz&base=INR&symbols=XAU")
+        if response.status_code == 200:
+            data = response.json()
+            rates = data['rates']
+            for key,values in rates.items():
+                gold_price=values/28.3495
+    except Exception as e:
+            log.exception('An error occured: %s',str(e))
+                
+
+scheduler.add_job(get_dollar, trigger=CronTrigger.from_crontab('40 16 * * *'))
+scheduler.add_job(get_gold_price, trigger=CronTrigger.from_crontab('40 16 * * *'))
+
+
+# --Creating userrecord table--
+sqls.create_user_records_table()
 
 def auth_required(endpoint_name):
     def decorated(view_func):

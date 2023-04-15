@@ -1,5 +1,7 @@
 import mysql.connector
 import datetime
+import csv
+
 
 def create_database():
     conn=mysql.connector.connect(
@@ -232,11 +234,76 @@ def demo(UserId):
     return my_list
 
 def get_previous_n_months(n):
-     today = datetime.date.today()
-     previous_months = []
-     for i in range(n):
+    today = datetime.date.today()
+    previous_months = []
+    for i in range(n):
         last_day_of_previous_month = today.replace(day=1) - datetime.timedelta(days=1)
         first_day_of_previous_month = last_day_of_previous_month.replace(day=1)
         previous_months.append((first_day_of_previous_month.strftime("%Y-%m-%d"), last_day_of_previous_month.strftime("%Y-%m-%d")))
         today = first_day_of_previous_month
-     print(previous_months)
+    return previous_months
+
+def test():
+    conn =mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="Sawad9449553996",
+        database="test"
+    )
+    c=conn.cursor()
+    c.execute("SELECT user_id, Last_name FROM user_record;")
+    item=c.fetchall()
+    first,last=previousDates()
+    for i in range(len(item)):
+        tablename=str(item[i][0])+'_'+str(item[i][1])
+        print(tablename)
+        c.execute("SELECT Gender,City,Job_title,Income,DOB from USER_RECORD WHERE User_ID = %s",([str(item[i][0])]))
+        x=c.fetchall()
+        age_in_years=age(x[0][4])
+        my_list=list((x[0]))
+        my_list.pop()
+        my_list.insert(1,age_in_years)
+        sql="SELECT Category,SUM(Amount) FROM {} WHERE Date BETWEEN (%s) AND (%s) GROUP BY Category;".format(tablename)
+        c.execute(sql,(first,last))
+        y=c.fetchall()
+        sorted_list = sorted(y, key=lambda x: order_dict[x[0]])
+
+        new_list = []
+        for category in order_list:
+            for i in sorted_list:
+                if i[0] == category:
+                    new_list.append(int(i[1]))
+                    break
+            else:
+                new_list.append(0)
+        my_list=my_list+new_list
+        print(my_list)   
+        with open('my_csv_file.csv', mode='a', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+            csv_writer.writerow(my_list)
+    conn.commit
+    conn.close()
+
+
+def getterExpense(UserId,lastname,n):
+    conn =mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="Sawad9449553996",
+        database="test"
+    )
+    c= conn.cursor()
+    usertablename=str(UserId)+"_"+lastname
+    dates=get_previous_n_months(n)
+    dar=[]
+    dar2=[]
+    for i in dates:
+        first=i[0]
+        last=i[1]
+        sql="SELECT Category,SUM(Amount) FROM {} WHERE Date BETWEEN (%s) AND (%s) GROUP BY Category;".format(usertablename)
+        c.execute(sql,(first,last))
+        dar=dar+c.fetchall()
+        dar2.append(dar)
+    conn.commit
+    conn.close()
+    return dar2

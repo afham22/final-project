@@ -287,7 +287,7 @@ def test():
     conn.close()
 
 
-def getterExpense(UserId,lastname,n):
+def getterExpense(UserId,lastname):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
@@ -296,16 +296,25 @@ def getterExpense(UserId,lastname,n):
     )
     c= conn.cursor()
     usertablename=str(UserId)+"_"+lastname
-    dates=get_previous_n_months(n)
+    dates=get_previous_n_months(6)
     dar=[]
-    dar2=[]
     for i in dates:
         first=i[0]
         last=i[1]
         sql="SELECT Category,SUM(Amount) FROM {} WHERE Date BETWEEN (%s) AND (%s) GROUP BY Category;".format(usertablename)
         c.execute(sql,(first,last))
-        dar=dar+c.fetchall()
-        dar2.append(dar)
+        item=c.fetchall()
+
+        if item==[]:
+            dar.append([])
+            continue
+        dar.append(item)
+    expenses_dict = {}
+    now = datetime.datetime.now()
+    for i, category in enumerate(dar):
+        month = (now - datetime.timedelta(days=30*(i+1))).strftime("%B")  # get the name of the month
+        expenses = dict(category)
+        expenses_dict[month] = expenses
     conn.commit
     conn.close()
-    return dar2
+    return expenses_dict

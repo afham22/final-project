@@ -318,3 +318,9 @@ def getterExpense(UserId,lastname):
     conn.commit
     conn.close()
     return expenses_dict
+
+def age(age):
+    birthdate_str = str(age)
+    birthdate = datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
+    today = datetime.date.today()
+    return today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))

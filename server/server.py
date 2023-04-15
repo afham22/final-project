@@ -15,10 +15,11 @@ fh = logging.FileHandler('myapp.log')
 fh.setLevel(logging.DEBUG)
 log.addHandler(fh)
 
-gold_price=''
-dollar=''
+gold_price=0
+dollar=0
 def get_dollar():
     try:
+        global dollar
         response = requests.get("https://openexchangerates.org/api/latest.json?app_id=96ad967e6fc7479a8eff532d1b8cdce4&symbols=INR")
         if response.status_code == 200:
             data = response.json()
@@ -29,6 +30,7 @@ def get_dollar():
             log.exception('An error occured: %s',str(e))
 
 def get_gold_price():
+    global gold_price
     try:
         response = requests.get("https://metals-api.com/api/latest?access_key=qyu5mrfh5kb3b7m97h3xp5bxua02o9upzt294nq16k1q8qiowqgm5tm1fchz&base=INR&symbols=XAU")
         if response.status_code == 200:
@@ -40,8 +42,9 @@ def get_gold_price():
             log.exception('An error occured: %s',str(e))
                 
 
-scheduler.add_job(get_dollar, trigger=CronTrigger.from_crontab('40 16 * * *'))
-scheduler.add_job(get_gold_price, trigger=CronTrigger.from_crontab('40 16 * * *'))
+scheduler.add_job(get_dollar, trigger=CronTrigger.from_crontab('14 17 * * *'))
+scheduler.add_job(get_gold_price, trigger=CronTrigger.from_crontab('14 17 * * *'))
+# scheduler.add_job(sqls.check_email, trigger=CronTrigger.from_crontab('06 17 * * *'))
 
 
 # --Creating userrecord table--
@@ -182,7 +185,7 @@ def insertTransac():
 def init():
 	user_id = request.decoded_token.get('user_id')
 	lastname = request.decoded_token.get('lastname')
-	return "hello"
+	return jsonify({'gold':gold_price,'dollar':dollar})
 
 
 @app.route('/checkEmail', methods = ['POST'])
@@ -196,5 +199,5 @@ def checkEmail():
 		return 'Email Exist', 403
 
 if __name__ == '__main__':
-
+	scheduler.start()
 	app.run(debug = True)

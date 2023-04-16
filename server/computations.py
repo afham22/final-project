@@ -70,4 +70,7 @@ def PPP(category_list, city):
 
     # Calculate the expenses for each category in the destination city based on the ratio list
     expenses_city = {category: value * result_dest.loc[city3][category] for category, value in ratio_list}
-    return json.dumps(expenses_city)
+
+    original_values = {category: value for category, value in category_list }
+    json_categ = json.dumps(original_values)
+    return json.dumps(expenses_city), json_categ

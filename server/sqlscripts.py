@@ -287,6 +287,14 @@ def dataStoreCron():
     conn.close()
 
 
+
+def age(age):
+    birthdate_str = str(age)
+    birthdate = datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
+    today = datetime.date.today()
+    return today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+
+
 def getterExpense(UserId,lastname):
     conn =mysql.connector.connect(
         host="localhost",
@@ -310,47 +318,8 @@ def getterExpense(UserId,lastname):
             continue
         dar.append(item)
     expenses_dict = {}
-    now = datetime.datetime.now()
     for i, category in enumerate(dar):
-        month = (now - datetime.timedelta(days=30*(i+1))).strftime("%B")  # get the name of the month
-        expenses = dict(category)
-        expenses_dict[month] = expenses
-    conn.commit
-    conn.close()
-    return expenses_dict
-
-def age(age):
-    birthdate_str = str(age)
-    birthdate = datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
-    today = datetime.date.today()
-    return today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
-
-
-def getterExpense(UserId,lastname):
-    conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="Sawad9449553996",
-        database="test"
-    )
-    c= conn.cursor()
-    usertablename=str(UserId)+"_"+lastname
-    dates=get_previous_n_months(6)
-    dar=[]
-    for i in dates:
-        first=i[0]
-        last=i[1]
-        sql="SELECT Category,SUM(Amount) FROM {} WHERE Date BETWEEN (%s) AND (%s) GROUP BY Category;".format(usertablename)
-        c.execute(sql,(first,last))
-        item=c.fetchall()
-
-        if item==[]:
-            dar.append([])
-            continue
-        dar.append(item)
-    expenses_dict = {}
-    for i, category in enumerate(dar):
-        month = i+1  # get the name of the month
+        month = i+1 
         expenses = dict(category)
         expenses_dict[month] = expenses
     conn.commit

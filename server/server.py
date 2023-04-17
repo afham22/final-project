@@ -1,6 +1,6 @@
 import sqlscripts as sqls,tokenjwt as jt,computations as comp
 import logging,jwt,requests
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request
 from decouple import config
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger

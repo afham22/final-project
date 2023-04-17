@@ -1,4 +1,6 @@
+import 'package:bugetify_app/feature.dart';
 import 'package:bugetify_app/screens/Login/login_screen.dart';
+import 'package:bugetify_app/ui/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
@@ -10,36 +12,22 @@ class AppHome extends StatefulWidget {
 }
 
 class _MyAppHomeState extends State<AppHome> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
 
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
-  static const List<Widget> _widgetOptions = <Widget>[
-    Scaffold(
-      body: SingleChildScrollView(
-        child: MobileLoginScreen(),
-      ),
-    ),
+  static List<Widget> _widgetOptions = <Widget>[
+    CalendarHomePage(), // updated
     Text(
       'Likes',
       style: optionStyle,
     ),
-    Text(
-      'Search',
-      style: optionStyle,
-    )
+    Feature()
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.0,
-        leading: const BackButton(
-          color: Colors.pinkAccent,
-        ),
-      ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
@@ -54,18 +42,18 @@ class _MyAppHomeState extends State<AppHome> {
               tabBackgroundColor: Colors.pinkAccent.shade100,
               padding: EdgeInsets.all(16),
               gap: 8,
-              tabs: const [
+              tabs: [
+                GButton(
+                  icon: Icons.calendar_month,
+                  text: 'Calendar',
+                ),
                 GButton(
                   icon: Icons.home,
-                  text: 'home',
+                  text: 'Home',
                 ),
                 GButton(
-                  icon: Icons.favorite,
-                  text: 'likes',
-                ),
-                GButton(
-                  icon: Icons.search,
-                  text: 'search',
+                  icon: Icons.bar_chart,
+                  text: 'Statistics',
                 )
               ],
               selectedIndex: _selectedIndex,

@@ -1,6 +1,13 @@
 import mysql.connector
 import datetime
 import csv
+import logging
+
+log = logging.getLogger('myapp')
+log.setLevel(logging.DEBUG)
+fh = logging.FileHandler('myapp.log')
+fh.setLevel(logging.DEBUG)
+log.addHandler(fh)
 
 
 def create_database():
@@ -144,28 +151,6 @@ def insert_value_trans(transid,date,cat,amo,lastname,userid):
     conn.close()
 
 
-def test():
-    conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
-    )
-    c=conn.cursor()
-    c.execute("SELECT user_id, Last_name FROM user_record;")
-    item=c.fetchall()
-    first,last=previousDates()
-    for i in range(len(item)):
-        tablename=str(item[i][0])+'_'+str(item[i][1])
-        print(tablename)
-        sql="SELECT Category,SUM(Amount) FROM {} WHERE Date BETWEEN (%s) AND (%s) GROUP BY Category;".format(tablename)
-        c.execute(sql,(first,last))
-        dar=c.fetchall()
-        print(dar)
-    conn.commit
-    conn.close()
-
-
 def delete_value_trans(transid,lastname,userid):
     conn =mysql.connector.connect(
         host="localhost",
@@ -195,7 +180,7 @@ def previousDates():
     return first_day_of_month,last_day_of_month
 
 
-def getExpense(UserId,lastname):
+def getExpensePreviousMonth(UserId,lastname):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
@@ -244,48 +229,59 @@ def get_previous_n_months(n):
     return previous_months
 
 def dataStoreCron():
-    conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
-    )
-    c=conn.cursor()
-    order_dict = {'Housing': 1, 'Groceries': 2, 'Leisure': 3, 'Entertainment': 4, 'Transportation': 5, 'Insurance': 6, 'Medical': 7, 'Utilities': 8}
-    order_list = ['Housing', 'Groceries', 'Leisure', 'Entertainment', 'Transportation', 'Insurance','Medical','Utilities']
-    c.execute("SELECT user_id, Last_name FROM user_record;")
-    item=c.fetchall()
-    first,last=previousDates()
-    for i in range(len(item)):
-        tablename=str(item[i][0])+'_'+str(item[i][1])
-        c.execute("SELECT Gender,City,Job_title,Income,DOB from USER_RECORD WHERE User_ID = %s",([str(item[i][0])]))
-        x=c.fetchall()
-        age_in_years=age(x[0][4])
-        my_list=list((x[0]))
-        my_list.pop()
-        my_list.insert(1,age_in_years)
-        sql="SELECT Category,SUM(Amount) FROM {} WHERE Date BETWEEN (%s) AND (%s) GROUP BY Category;".format(tablename)
-        c.execute(sql,(first,last))
-        y=c.fetchall()
-        sorted_list = sorted(y, key=lambda x: order_dict[x[0]])
+    try:
+        conn =mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="123456",
+            database="budgetify"
+        )
+        c=conn.cursor()
+        order_dict = {'Housing': 1, 'Groceries': 2, 'Leisure': 3, 'Entertainment': 4, 'Transportation': 5, 'Insurance': 6, 'Medical': 7, 'Utilities': 8}
+        order_list = ['Housing', 'Groceries', 'Leisure', 'Entertainment', 'Transportation', 'Insurance','Medical','Utilities']
+        c.execute("SELECT user_id, Last_name FROM user_record;")
+        item=c.fetchall()
+        first,last=previousDates()
+        for i in range(len(item)):
+            tablename=str(item[i][0])+'_'+str(item[i][1])
+            print(tablename)
+            c.execute("SELECT Gender,City,Job_title,Income,DOB from USER_RECORD WHERE User_ID = %s",([str(item[i][0])]))
+            x=c.fetchall()
+            age_in_years=age(x[0][4])
+            my_list=list((x[0]))
+            my_list.pop()
+            my_list.insert(1,age_in_years)
+            sql="SELECT Category,SUM(Amount) FROM {} WHERE Date BETWEEN (%s) AND (%s) GROUP BY Category;".format(tablename)
+            c.execute(sql,(first,last))
+            y=c.fetchall()
+            sorted_list = sorted(y, key=lambda x: order_dict[x[0]])
 
-        new_list = []
-        for category in order_list:
-            for i in sorted_list:
-                if i[0] == category:
-                    new_list.append(int(i[1]))
-                    break
-            else:
-                new_list.append(0)
-        my_list=my_list+new_list
-        with open('my_csv_file.csv', mode='a', newline='') as csv_file:
-            csv_writer = csv.writer(csv_file)
-            csv_writer.writerow(my_list)
-    conn.commit
-    conn.close()
+            new_list = []
+            for category in order_list:
+                for i in sorted_list:
+                    if i[0] == category:
+                        new_list.append(int(i[1]))
+                        break
+                else:
+                    new_list.append(0)
+            my_list=my_list+new_list  
+            with open('my_csv_file.csv', mode='a', newline='') as csv_file:
+                csv_writer = csv.writer(csv_file)
+                csv_writer.writerow(my_list)
+        conn.commit
+        conn.close()
+    except Exception as e:
+            log.exception('An error occured: %s',str(e))
 
 
-def getterExpense(UserId,lastname):
+def age(DOB):
+    birthdate_str = str(DOB)
+    birthdate = datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
+    today = datetime.date.today()
+    return today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+
+
+def expense_of_6month(UserId,lastname):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
@@ -308,17 +304,10 @@ def getterExpense(UserId,lastname):
             continue
         dar.append(item)
     expenses_dict = {}
-    now = datetime.datetime.now()
     for i, category in enumerate(dar):
-        month = (now - datetime.timedelta(days=30*(i+1))).strftime("%B")  # get the name of the month
+        month = i+1 
         expenses = dict(category)
         expenses_dict[month] = expenses
     conn.commit
     conn.close()
     return expenses_dict
-
-def age(age):
-    birthdate_str = str(age)
-    birthdate = datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
-    today = datetime.date.today()
-    return today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))

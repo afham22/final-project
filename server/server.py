@@ -186,8 +186,9 @@ def insertTransac():
 def init():
 	user_id = request.decoded_token.get('user_id')
 	lastname = request.decoded_token.get('lastname')
-	res = sqls.expense_of_6month(user_id, lastname)
-	return jsonify({'gold':gold_price,'dollar':dollar},res)
+	res = sqls.expense_of_3month(user_id, lastname)
+	#return jsonify({'gold':gold_price,'dollar':dollar},res)
+	return res
 
 
 @app.route('/checkEmail', methods = ['POST'])

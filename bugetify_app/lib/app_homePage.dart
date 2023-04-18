@@ -1,3 +1,4 @@
+import 'package:bugetify_app/dashboard.dart';
 import 'package:bugetify_app/feature.dart';
 import 'package:bugetify_app/screens/Login/login_screen.dart';
 import 'package:bugetify_app/ui/pages/home_page.dart';
@@ -18,10 +19,7 @@ class _MyAppHomeState extends State<AppHome> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
   static List<Widget> _widgetOptions = <Widget>[
     CalendarHomePage(), // updated
-    Text(
-      'Likes',
-      style: optionStyle,
-    ),
+    Dashboard(),
     Feature()
   ];
 

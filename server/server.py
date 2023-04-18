@@ -135,9 +135,10 @@ def PPPCalc():
 	lastname = request.decoded_token.get('lastname')
 	data = request.get_json()
 	city = data['city']
-	category_list = sqls.getExpense(user_id,lastname)
+	category_list = sqls.getExpensePreviousMonth(user_id,lastname)
+	cur_city = sqls.getCity(user_id, lastname)
 
-	res= comp.PPP(category_list, city)
+	res= comp.PPP(category_list, city, cur_city)
 	return res
 
 @app.route('/DemoCompare', methods = ['GET'])

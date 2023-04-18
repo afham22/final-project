@@ -14,6 +14,24 @@ class _signUpFormState extends State<signUpForm> {
   String? _gender;
   final _passwordController = TextEditingController();
 
+  String _selectedLocation = 'Bangalore';
+  String _selectedJob = 'Accountant';
+
+  final List<String> _locations = [
+    'Bangalore',
+    'Mumbai',
+    'Delhi',
+    'Kochi',
+    'Raipur'
+  ];
+  final List<String> _Job = [
+    'Accountant',
+    'Clerk',
+    'Software developer',
+    'Doctor',
+    'Teaching faculty'
+  ];
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -95,10 +113,128 @@ class _signUpFormState extends State<signUpForm> {
               return null;
             },
           ),
+          SizedBox(height: 16.0),
+          TextFormField(
+            textInputAction: TextInputAction.next,
+            obscureText: false,
+            cursorColor: Color(0xFF6F35A5),
+            decoration: InputDecoration(
+              hintText: "Enter your Income",
+              prefixIcon: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Icon(Icons.money),
+              ),
+            ),
+          ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return Container(
+                width: constraints
+                    .maxWidth, // Set the width to the maximum available width
+                height: 70, // Set the desired height constraint
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.location_city),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                        child: DropdownButton(
+                          value: _selectedLocation,
+                          items: _locations.map((location) {
+                            return DropdownMenuItem(
+                              value: location,
+                              child: Text(
+                                location,
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedLocation = value.toString();
+                            });
+                          },
+                          underline: Container(
+                            height: 0,
+                            color: Colors.black38,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return Container(
+                width: constraints
+                    .maxWidth, // Set the width to the maximum available width
+                height: 70, // Set the desired height constraint
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.location_city),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                        child: DropdownButton(
+                          value: _selectedJob,
+                          items: _Job.map((Job) {
+                            return DropdownMenuItem(
+                              value: Job,
+                              child: Text(
+                                Job,
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedJob = value.toString();
+                            });
+                          },
+                          underline: Container(
+                            height: 0,
+                            color: Colors.black38,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          SizedBox(
+            height: 16,
+          ),
           Row(
             children: [
-              Text('Gender:'),
-              SizedBox(width: 8),
+              SizedBox(
+                width: 8,
+              ),
+              Text(
+                'Gender:',
+                style: TextStyle(
+                  fontSize: 17,
+                  color: Colors.black54,
+                ),
+              ),
               Expanded(
                 child: Row(
                   children: [
@@ -107,7 +243,13 @@ class _signUpFormState extends State<signUpForm> {
                         contentPadding: EdgeInsets.zero,
                         visualDensity:
                             VisualDensity(horizontal: -4, vertical: 0),
-                        title: Text('M'),
+                        title: Text(
+                          'M',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.black54,
+                          ),
+                        ),
                         value: 'male',
                         groupValue: _gender,
                         onChanged: (value) {
@@ -122,7 +264,13 @@ class _signUpFormState extends State<signUpForm> {
                         contentPadding: EdgeInsets.zero,
                         visualDensity:
                             VisualDensity(horizontal: -4, vertical: 0),
-                        title: Text('F'),
+                        title: Text(
+                          'F',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.black54,
+                          ),
+                        ),
                         value: 'female',
                         groupValue: _gender,
                         onChanged: (value) {
@@ -139,7 +287,13 @@ class _signUpFormState extends State<signUpForm> {
                         contentPadding:
                             EdgeInsets.zero, // Set contentPadding to zero
 
-                        title: Text('Other'),
+                        title: Text(
+                          'Other',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.black54,
+                          ),
+                        ),
                         value: 'other',
                         groupValue: _gender,
                         onChanged: (value) {
@@ -149,12 +303,13 @@ class _signUpFormState extends State<signUpForm> {
                         },
                       ),
                     ),
+                    SizedBox(width: 2),
                   ],
                 ),
               ),
             ],
           ),
-          SizedBox(height: 16.0),
+          SizedBox(height: 10),
           Hero(
             tag: "signUp_btn",
             child: ElevatedButton(

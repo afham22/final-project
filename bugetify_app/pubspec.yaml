@@ -43,6 +43,8 @@ dependencies:
   flutter_auth: ^0.0.1
   http: ^0.13.4
   modal_progress_hud_nsn: ^0.1.0-nullsafety-1
+  syncfusion_flutter_charts: ^19.1.63
+
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +73,7 @@ flutter:
     - assets/img/
     - assets/icons/
     - images/
+    - assets/data.json
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages

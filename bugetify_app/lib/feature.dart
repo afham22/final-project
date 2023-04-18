@@ -1,4 +1,5 @@
 import 'package:bugetify_app/demographic.dart';
+import 'package:bugetify_app/ppp.dart';
 import 'package:bugetify_app/ui/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
@@ -52,10 +53,7 @@ class _FeatureState extends State<Feature> with SingleTickerProviderStateMixin {
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          Demographic(),
-          Text('Likes Page'),
-        ],
+        children: [Demographic(), PPP()],
       ),
     );
   }

@@ -69,7 +69,9 @@ class _CheckEmailState extends State<emailCheckForm> {
           const SizedBox(height: 16.0 / 2),
           ElevatedButton(
             onPressed: () {
-              checkEmail(checkEmailController.text.toString());
+              // checkEmail(checkEmailController.text.toString());
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => signUpScreen()));
             },
             child: Text("Verify Email".toUpperCase()),
           ),

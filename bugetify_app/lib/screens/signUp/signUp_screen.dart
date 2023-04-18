@@ -34,7 +34,7 @@ class MobilesignUpScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Row(
-          children: const [
+          children: [
             Spacer(),
             Expanded(
               flex: 8,

@@ -2,7 +2,6 @@ import mysql.connector
 import datetime
 import csv
 import logging
-import json
 
 log = logging.getLogger('myapp')
 log.setLevel(logging.DEBUG)
@@ -196,7 +195,9 @@ def getExpensePreviousMonth(UserId,lastname):
     dar=c.fetchall()
     conn.commit
     conn.close()
-    return dar
+    user_expense = dict(dar)
+    user_expense['Name'] = 'Your_Expense'
+    return user_expense
 
 def demo(UserId):
     conn =mysql.connector.connect(
@@ -313,9 +314,7 @@ def expense_of_3month(UserId,lastname):
         for c in category:
             expenses[c[0]] = c[1]
         expenses_list.append(expenses)
-
-    json_expenses = json.dumps(expenses_list, default=str)
-    return json_expenses
+    return expenses_list
 
 def getCity(UserId):
     conn =mysql.connector.connect(

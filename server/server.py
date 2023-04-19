@@ -146,6 +146,7 @@ def PPPCalc():
 @handle_errors
 def demoCompare():
 	user_id = request.decoded_token.get('user_id')
+	lastname = request.decoded_token.get('lastname')
 	data=sqls.demo(user_id)
 	age=data[4]
 	income=data[3]
@@ -153,16 +154,21 @@ def demoCompare():
 	gender=data[0]
 	city=data[2]
 
+	user_expense = sqls.getExpensePreviousMonth(user_id, lastname)
+
 	pred=comp.evaluate(age,income,job_title,gender,city)
-	return jsonify({'Housing':str (pred[0]),
+	res = jsonify({'Housing':str (pred[0]),
 		 'Groceries':str (pred[1]),
 		 'Entertainment':str (pred[2]),
 		 'Leisure':str (pred[3]),
 		 'Transportation':str (pred[4]),
 		 'Medical':str (pred[5]),
 		 'Utilities':str (pred[6]),
-		 'Insurance':str (pred[7])
+		 'Insurance':str (pred[7]),
+		 'Name':'Standard_Expense'
 		 })
+
+	return [user_expense, res]
 
 
 @app.route('/insertTransac', methods = ['POST'])

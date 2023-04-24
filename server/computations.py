@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import OneHotEncoder
-import json
+import json,sqlscripts as sqls
 # Loading the data into a pandas dataframe
 # df = pd.read_csv('/kaggle/input/income-expenditure-demography-of-cities-in-india/Income expenditure demography.csv')
 df=pd.read_csv('dataset.csv')
@@ -52,14 +52,13 @@ def evaluate(age,income,job_title,gender,city):
 
 # train()
 
-
-def PPP(category_list, city):
+def PPP(category_list, city, cur):
     # Load the dataset into a Pandas DataFrame
     df = pd.read_csv('dataset.csv')
+    #cur_city = 'Kochi'
 
     city2 = 'Bangalore'
     city3 = city
-
 
     # Calculate the average expenses for each category for the two cities
     result = df.groupby(['City'])[['Housing', 'Leisure', 'Entertainment', 'Insurance', 'Medical','Transportation','Groceries','Utilities']].mean().loc[[city2]]
@@ -70,7 +69,11 @@ def PPP(category_list, city):
 
     # Calculate the expenses for each category in the destination city based on the ratio list
     expenses_city = {category: value * result_dest.loc[city3][category] for category, value in ratio_list}
+    expenses_city["dest_city"] = city3
 
     original_values = {category: value for category, value in category_list }
-    json_categ = json.dumps(original_values)
-    return json.dumps(expenses_city), json_categ
+    original_values["cur_city"] = cur
+    mylist = []
+    mylist.append(original_values)
+    mylist.append(expenses_city)
+    return mylist

@@ -80,7 +80,7 @@ def check_password(email):
         return None
     else:
         return(item)
-    
+
 
 def check_email(email):
     conn =mysql.connector.connect(
@@ -264,7 +264,7 @@ def dataStoreCron():
                         break
                 else:
                     new_list.append(0)
-            my_list=my_list+new_list  
+            my_list=my_list+new_list
             with open('my_csv_file.csv', mode='a', newline='') as csv_file:
                 csv_writer = csv.writer(csv_file)
                 csv_writer.writerow(my_list)
@@ -281,7 +281,7 @@ def age(DOB):
     return today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
 
 
-def expense_of_6month(UserId,lastname):
+def expense_of_3month(UserId,lastname):
     conn =mysql.connector.connect(
         host="localhost",
         user="root",
@@ -290,7 +290,7 @@ def expense_of_6month(UserId,lastname):
     )
     c= conn.cursor()
     usertablename=str(UserId)+"_"+lastname
-    dates=get_previous_n_months(6)
+    dates=get_previous_n_months(3)
     dar=[]
     for i in dates:
         first=i[0]
@@ -303,11 +303,25 @@ def expense_of_6month(UserId,lastname):
             dar.append([])
             continue
         dar.append(item)
-    expenses_dict = {}
+    expenses_list = []
+    now = datetime.datetime.now()
+
     for i, category in enumerate(dar):
-        month = i+1 
-        expenses = dict(category)
-        expenses_dict[month] = expenses
-    conn.commit
-    conn.close()
-    return expenses_dict
+        month = (now - datetime.timedelta(days=30*(i+1))).strftime("%B")
+        expenses = {'month': month}
+        for c in category:
+            expenses[c[0]] = c[1]
+        expenses_list.append(expenses)
+    return expenses_list
+
+def getCity(UserId):
+    conn =mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="123456",
+        database="budgetify"
+    )
+    c=conn.cursor()
+    c.execute("SELECT City from USER_RECORD WHERE User_ID = %s",([UserId]))
+    item=c.fetchone()
+    return item[0]

@@ -1,9 +1,11 @@
 import 'dart:convert';
-
 import 'package:bugetify_app/screens/Signup/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:http/http.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+final storage = FlutterSecureStorage();
 
 class emailCheckForm extends StatefulWidget {
   const emailCheckForm({
@@ -18,6 +20,8 @@ class _CheckEmailState extends State<emailCheckForm> {
   TextEditingController checkEmailController = TextEditingController();
 
   void checkEmail(String email) async {
+    final jwtToken = await storage.read(key: 'jwt_token');
+
     try {
       var url = Uri.parse('http://localhost:5000/checkEmail');
 
@@ -28,9 +32,7 @@ class _CheckEmailState extends State<emailCheckForm> {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode(<String, String>{
-          'email': email,
-        }),
+        body: json.encode({'email': email, 'token': jwtToken}),
       );
       if (response.statusCode == 200) {
         Navigator.of(context)

@@ -1,1 +1,18 @@
-[{"Entertainment":1235,"Groceries":1243,"Housing":2541,"Insurance":531,"Leisure":986,"Medical":621,"Transportation":1450,"Utilities":2212,"month":"Oct"},{"Entertainment":1435,"Groceries":1785,"Housing":2567,"Insurance":789,"Leisure":1099,"Medical":765,"Transportation":2213,"Utilities":2189,"month":"Nov"}]
+[
+    {
+      "Entertainment": "300",
+      "Groceries": "3000",
+      "Housing": "26000",
+      "month": "March"
+    },
+    {
+      "month": "February"
+    },
+    {
+      "month": "January"
+    },
+    {
+      "dollar": 0,
+      "gold": 0
+    }
+  ]

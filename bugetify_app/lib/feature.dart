@@ -24,7 +24,7 @@ class _FeatureState extends State<Feature> with SingleTickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.pink.shade300,
         bottom: TabBar(
           controller: _tabController,
           tabs: [

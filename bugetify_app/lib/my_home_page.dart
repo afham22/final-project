@@ -1,4 +1,6 @@
 // import 'package:flutter/cupertino.dart';
+import 'dart:async';
+
 import 'package:bugetify_app/getStartedOne.dart';
 import 'package:bugetify_app/screens/Login/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,32 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  List<String> myArray = [
+    'مرحبًا',
+    'Hello',
+    'こんにちは',
+    'Bonjour',
+    'नमस्ते',
+    'Hola'
+  ];
+  final Shader linearGradient = const LinearGradient(
+    colors: <Color>[Colors.lightBlue, Colors.yellow],
+  ).createShader(Rect.fromLTWH(0.0, 0.0, 90.0, 100.0));
+  int currentIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    Timer.periodic(const Duration(seconds: 2), (timer) {
+      changeText();
+    });
+  }
+
+  void changeText() {
+    setState(() {
+      currentIndex = (currentIndex + 1) % myArray.length;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,47 +49,48 @@ class _MyHomePageState extends State<MyHomePage> {
           Positioned(
             top: 0,
             left: 0,
-            height: 700,
+            height: 900,
             child: Container(
               height: 700,
               width: MediaQuery.of(context).size.width,
               decoration: const BoxDecoration(
                   image: DecorationImage(
-                      image: AssetImage("assets/img/background.jpg"),
+                      image: AssetImage("assets/img/background1.jpg"),
                       fit: BoxFit.cover)),
             ),
           ),
           Positioned(
-              bottom: 0,
+              bottom: 120,
               left: 20,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Pick Your Favourite",
+                    myArray[currentIndex] + ',',
+                    style: TextStyle(
+                        fontSize: 42,
+                        foreground: Paint()..shader = linearGradient,
+                        fontWeight: FontWeight.w700),
+                  ),
+                  const Text(
+                    "Welcome to Budgetify",
                     style: TextStyle(
                         fontSize: 32,
-                        color: Colors.white,
+                        color: Colors.pinkAccent,
                         fontWeight: FontWeight.w600),
                   ),
-                  Text(
-                    "Contests",
-                    style: TextStyle(
-                        fontSize: 32,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600),
-                  ),
-                  SizedBox(
-                    height: 20,
+                  const SizedBox(
+                    height: 15,
                   ),
                   SizedBox(
                       width: MediaQuery.of(context).size.width - 25,
-                      child: Text(
-                        "We make great design work "
-                        "happen with our great community designer",
-                        style: TextStyle(color: Colors.white60),
+                      child: const Text(
+                        "managing your finances is easy  \n"
+                        "and stress-free!",
+                        style:
+                            TextStyle(color: Colors.pinkAccent, fontSize: 20),
                       )),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   Container(
@@ -69,59 +98,42 @@ class _MyHomePageState extends State<MyHomePage> {
                     height: 70,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: Color(0xFffbc33e)),
+                        color: Colors.white),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         elevation: 0,
-                        primary: Color(0xFFfbc33e),
+                        primary: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
+                          borderRadius: BorderRadius.circular(20.0),
                         ),
                       ),
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => getStartedOPage()));
+                            builder: (context) => const LoginScreen()));
                       },
-                      child: Text(
-                        "Get started",
-                        style: TextStyle(color: Colors.white),
+                      child: const Text(
+                        "Have an account?",
+                        style:
+                            TextStyle(color: Colors.pinkAccent, fontSize: 16),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Container(
-                    width: 200,
-                    height: 70,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Color(0xFffbc33e)),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        elevation: 0,
-                        primary: Color(0xFFfbc33e),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => LoginScreen()));
-                      },
-                      child: Text(
-                        "Login",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 50,
                   ),
                 ],
               ))
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.white,
+        onPressed: () {
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const getStartedOPage()));
+        },
+        child: const Icon(
+          Icons.arrow_forward_ios,
+          color: Colors.pinkAccent,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

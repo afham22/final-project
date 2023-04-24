@@ -1,10 +1,11 @@
 import 'dart:convert';
-
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bugetify_app/app_homePage.dart';
-// import 'package:bugetify_app/calendarHome.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:http/http.dart';
+
+final storage = FlutterSecureStorage();
 
 class LoginForm extends StatefulWidget {
   const LoginForm({
@@ -21,10 +22,7 @@ class _LoginState extends State<LoginForm> {
 
   void login(String email, password) async {
     try {
-      var url = Uri.parse('http://192.168.0.106:5000/login');
-
-//here is The Error occur at http.get(url),
-
+      var url = Uri.parse('http://192.168.0.109:5000/login');
       Response response = await post(
         url,
         headers: <String, String>{
@@ -34,6 +32,12 @@ class _LoginState extends State<LoginForm> {
             jsonEncode(<String, String>{'email': email, 'password': password}),
       );
       if (response.statusCode == 200) {
+        final responseBody = json.decode(response.body);
+
+// Access a property of the Map using the [] operator
+        final token = responseBody['token'];
+
+        await storage.write(key: 'jwt_token', value: token);
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => AppHome()));
       } else {

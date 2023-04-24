@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:http/http.dart';
+import 'package:intl/intl.dart';
 
 class signUpForm extends StatefulWidget {
   signUpForm({
@@ -32,13 +36,57 @@ class _signUpFormState extends State<signUpForm> {
     'Teaching faculty'
   ];
 
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController firstnameController = TextEditingController();
+  TextEditingController lastnameController = TextEditingController();
+  TextEditingController incomeController = TextEditingController();
+
+  TextEditingController _date = TextEditingController();
+
+  void signup(String firstname, lastname, email, password, gender, dob, job,
+      income, city) async {
+    try {
+      var url = Uri.parse('http://192.168.0.106:5000/login');
+
+//here is The Error occur at http.get(url),
+
+      Response response = await post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'firstname': firstname,
+          'lastname': lastname,
+          'email': email,
+          'password': password,
+          'gender': gender,
+          'dob': dob,
+          'jobtitle': job,
+          'income': income,
+          'city': city
+        }),
+      );
+      if (response.statusCode == 200) {
+        // Navigator.of(context)
+        //     .push(MaterialPageRoute(builder: (context) => AppHome()));
+      } else {
+        print('verification failed');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          SizedBox(height: 16.0),
+          SizedBox(height: 40.0),
           TextFormField(
+            controller: firstnameController,
             textInputAction: TextInputAction.next,
             obscureText: false,
             cursorColor: Color(0xFF6F35A5),
@@ -52,6 +100,7 @@ class _signUpFormState extends State<signUpForm> {
           ),
           SizedBox(height: 16.0),
           TextFormField(
+            controller: lastnameController,
             textInputAction: TextInputAction.next,
             obscureText: false,
             cursorColor: Color(0xFF6F35A5),
@@ -65,6 +114,7 @@ class _signUpFormState extends State<signUpForm> {
           ),
           SizedBox(height: 16.0),
           TextFormField(
+            controller: emailController,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             validator: (value) => EmailValidator.validate(value)
@@ -82,6 +132,7 @@ class _signUpFormState extends State<signUpForm> {
           ),
           SizedBox(height: 16.0),
           TextFormField(
+            controller: passwordController,
             textInputAction: TextInputAction.next,
             obscureText: true,
             cursorColor: Color(0xFF6F35A5),
@@ -106,7 +157,7 @@ class _signUpFormState extends State<signUpForm> {
               ),
             ),
             validator: (value) {
-              final password = _passwordController.text;
+              final password = passwordController.text;
               if (value != password) {
                 return 'Passwords do not match';
               }
@@ -115,6 +166,7 @@ class _signUpFormState extends State<signUpForm> {
           ),
           SizedBox(height: 16.0),
           TextFormField(
+            controller: incomeController,
             textInputAction: TextInputAction.next,
             obscureText: false,
             cursorColor: Color(0xFF6F35A5),
@@ -223,6 +275,32 @@ class _signUpFormState extends State<signUpForm> {
           SizedBox(
             height: 16,
           ),
+          TextField(
+            controller: _date,
+            // textInputAction: TextInputAction.next,
+            // obscureText: false,
+            cursorColor: Color(0xFF6F35A5),
+            decoration: InputDecoration(
+              hintText: "Select date",
+              prefixIcon: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Icon(Icons.calendar_today_rounded),
+              ),
+            ),
+            onTap: () async {
+              DateTime? pickdate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(1950),
+                  lastDate: DateTime.now());
+              if (pickdate != null) {
+                setState(() {
+                  _date.text = DateFormat('yyyy-MM-dd').format(pickdate);
+                });
+              }
+            },
+          ),
+          SizedBox(height: 20.0),
           Row(
             children: [
               SizedBox(
@@ -309,17 +387,27 @@ class _signUpFormState extends State<signUpForm> {
               ),
             ],
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 30.0),
           Hero(
             tag: "signUp_btn",
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                // signup(
+                //     firstnameController.toString(),
+                //     lastnameController.toString(),
+                //     emailController.text.toString(),
+                //     passwordController.text.toString(),
+                //     _gender.toString(),
+                //     _Job.toString(),
+                //     incomeController.toString(),
+                //     _locations.toString());
+              },
               child: Text(
                 "Sign Up".toUpperCase(),
               ),
             ),
           ),
-          SizedBox(height: 16.0),
+          SizedBox(height: 40.0),
         ],
       ),
     );

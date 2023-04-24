@@ -3,6 +3,7 @@ import 'package:bugetify_app/screens/emailCheck/emailCheck_screen.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_getx/content_page.dart';
 // import 'package:get/get.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class getStartedTPage extends StatefulWidget {
   const getStartedTPage({Key? key}) : super(key: key);
@@ -15,59 +16,57 @@ class _getStartedTPageState extends State<getStartedTPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.0,
-        leading: const BackButton(
-          color: Colors.pinkAccent,
-        ),
-      ),
       backgroundColor: Color(0xFF69c5df),
       body: Stack(
         children: [
           Positioned(
             top: 0,
             left: 0,
-            height: 700,
+            height: 900,
             child: Container(
               height: 700,
               width: MediaQuery.of(context).size.width,
               decoration: const BoxDecoration(
                   image: DecorationImage(
-                      image: AssetImage("assets/img/background.jpg"),
+                      image: AssetImage("assets/img/background1.jpg"),
                       fit: BoxFit.cover)),
             ),
           ),
           Positioned(
-              bottom: 0,
+            top: 40, // Adjust as needed
+            left: 10, // Adjust as needed
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.transparent,
+              ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.pinkAccent,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+          ),
+          Positioned(
+              top: 510,
               left: 20,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Pick Your Favourite",
+                    "Sign Up Now to Enjoy \nFinancial Freedom",
                     style: TextStyle(
                         fontSize: 32,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    "Contests",
-                    style: TextStyle(
-                        fontSize: 32,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600),
+                        color: Colors.pinkAccent,
+                        fontWeight: FontWeight.w800),
                   ),
                   SizedBox(
                     height: 20,
                   ),
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width - 25,
-                      child: Text(
-                        "We make great design work "
-                        "happen with our great community designer",
-                        style: TextStyle(color: Colors.white60),
-                      )),
                   SizedBox(
                     height: 20,
                   ),
@@ -76,13 +75,13 @@ class _getStartedTPageState extends State<getStartedTPage> {
                     height: 70,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: Color(0xFffbc33e)),
+                        color: Colors.white),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         elevation: 0,
-                        primary: Color(0xFFfbc33e),
+                        primary: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
+                          borderRadius: BorderRadius.circular(20.0),
                         ),
                       ),
                       onPressed: () {
@@ -91,7 +90,7 @@ class _getStartedTPageState extends State<getStartedTPage> {
                       },
                       child: Text(
                         "Sign up",
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: Colors.pinkAccent),
                       ),
                     ),
                   ),
@@ -102,7 +101,19 @@ class _getStartedTPageState extends State<getStartedTPage> {
                     height: 50,
                   ),
                 ],
-              ))
+              )),
+          Positioned(
+            top: 180,
+            right: 60,
+            child: SizedBox(
+              width: 280,
+              height: 280,
+              child: SvgPicture.asset(
+                "assets/img/signup.svg",
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -136,10 +136,14 @@ def PPPCalc():
 	data = request.get_json()
 	city = data['city']
 	category_list = sqls.getExpensePreviousMonth(user_id,lastname)
-	cur_city = sqls.getCity(user_id, lastname)
+	cur_city = sqls.getCity(user_id)
 
 	res= comp.PPP(category_list, city, cur_city)
-	return res
+	for key, value in res[1].items():
+		if isinstance(value, float):
+			res[1][key] = str(value)
+	return jsonify(res[0],res[1])
+
 
 @app.route('/DemoCompare', methods = ['GET'])
 @auth_required('DemoCompare_auth')
@@ -154,10 +158,13 @@ def demoCompare():
 	gender=data[0]
 	city=data[2]
 
-	user_expense = sqls.getExpensePreviousMonth(user_id, lastname)
+	res = sqls.getExpensePreviousMonth(user_id, lastname)
+	user_expense = dict(res)
+	user_expense['Name'] = 'Your_Expense'
+	# return user_expense
 
 	pred=comp.evaluate(age,income,job_title,gender,city)
-	res = jsonify({'Housing':str (pred[0]),
+	return jsonify({'Housing':str (pred[0]),
 		 'Groceries':str (pred[1]),
 		 'Entertainment':str (pred[2]),
 		 'Leisure':str (pred[3]),
@@ -166,9 +173,7 @@ def demoCompare():
 		 'Utilities':str (pred[6]),
 		 'Insurance':str (pred[7]),
 		 'Name':'Standard_Expense'
-		 })
-
-	return [user_expense, res]
+		 }, user_expense)
 
 
 @app.route('/insertTransac', methods = ['POST'])
@@ -193,8 +198,8 @@ def init():
 	user_id = request.decoded_token.get('user_id')
 	lastname = request.decoded_token.get('lastname')
 	res = sqls.expense_of_3month(user_id, lastname)
-	#return jsonify({'gold':gold_price,'dollar':dollar},res)
-	return res
+	res.append({'gold':gold_price,'dollar':dollar})
+	return jsonify(res)
 
 
 @app.route('/checkEmail', methods = ['POST'])

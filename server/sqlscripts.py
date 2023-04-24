@@ -195,9 +195,7 @@ def getExpensePreviousMonth(UserId,lastname):
     dar=c.fetchall()
     conn.commit
     conn.close()
-    user_expense = dict(dar)
-    user_expense['Name'] = 'Your_Expense'
-    return user_expense
+    return dar
 
 def demo(UserId):
     conn =mysql.connector.connect(

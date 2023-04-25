@@ -2,6 +2,7 @@ import mysql.connector
 import datetime
 import csv
 import logging
+import tokenjwt as jt
 
 log = logging.getLogger('myapp')
 log.setLevel(logging.DEBUG)
@@ -12,10 +13,11 @@ log.addHandler(fh)
 
 def create_database():
     conn=mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password
     )
+    print("connection established")
     c=conn.cursor()
     c.execute("CREATE DATABASE IF NOT EXISTS budgetify")
 
@@ -23,10 +25,10 @@ def create_database():
 
 def create_user_records_table():
     conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password,
+        database=jt.database
     )
     c=conn.cursor()
     c.execute('''CREATE TABLE  IF NOT EXISTS USER_RECORD
@@ -48,10 +50,10 @@ def create_user_records_table():
 
 def createAccount(firstname, lastname, email, password, gender,dob, jobtitle,Income, city):
     conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password,
+        database=jt.database
     )
     c=conn.cursor()
     c.execute("INSERT INTO USER_RECORD (First_name,Last_name,Email,Password,Gender,DOB,Job_title,Income,City) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",(firstname, lastname, email, password, gender,dob, jobtitle,Income, city))
@@ -66,10 +68,10 @@ def createAccount(firstname, lastname, email, password, gender,dob, jobtitle,Inc
 
 def check_password(email):
     conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password,
+        database=jt.database
     )
     c=conn.cursor()
     c.execute("SELECT Password,User_ID,Last_name from USER_RECORD WHERE Email=(%s)",(email,))
@@ -84,10 +86,10 @@ def check_password(email):
 
 def check_email(email):
     conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password,
+        database=jt.database
     )
     c= conn.cursor()
     sql = "SELECT * FROM USER_RECORD WHERE email = %s"
@@ -104,25 +106,25 @@ def check_email(email):
 
 def create_user_expense_table(uid,lname):
     conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password,
+        database=jt.database
     )
     c=conn.cursor()
     usertablename=lname+"_"+uid
     print(usertablename)
-    query = "CREATE TABLE {} (Trans_ID INT,Date DATETIME,Category VARCHAR(50),Amount INT)".format(usertablename)
+    query = "CREATE TABLE {} (Trans_ID INT,Date DATETIME,Category VARCHAR(50),Amount INT,Notes TINYTEXT,Color TINYTEXT)".format(usertablename)
     c.execute(query)
     conn.commit
     conn.close()
 
 def sumOfExpenseFor30(UserId,lastname):
     conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password,
+        database=jt.database
     )
     c=conn.cursor()
     current_date = datetime.date.today()
@@ -136,27 +138,30 @@ def sumOfExpenseFor30(UserId,lastname):
     conn.close()
 
 
-def insert_value_trans(transid,date,cat,amo,lastname,userid):
+def insert_value_trans(transid,date,cat,amo,lastname,col,note,userid):
     conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password,
+        database=jt.database
     )
     c=conn.cursor()
     usertablename=str(userid)+"_"+lastname
-    sql=("INSERT INTO {} (Trans_ID,Date,Category,Amount) VALUES (%s,%s,%s,%s)".format(usertablename))
-    c.execute(sql,(transid,date,cat,amo))
+    date_str = date
+    date_obj = datetime.datetime.strptime(date_str, '%m/%d/%Y')
+    new_date_str = datetime.datetime.strftime(date_obj, '%Y-%m-%d')
+    sql=("INSERT INTO {} (Trans_ID,Date,Category,Amount,Notes,Color) VALUES (%s,%s,%s,%s,%s,%s)".format(usertablename))
+    c.execute(sql,(transid,new_date_str,cat,amo,note,col))
     conn.commit()
     conn.close()
 
 
 def delete_value_trans(transid,lastname,userid):
     conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password,
+        database=jt.database
     )
     c=conn.cursor()
     usertablename=str(userid)+"_"+lastname
@@ -182,10 +187,10 @@ def previousDates():
 
 def getExpensePreviousMonth(UserId,lastname):
     conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password,
+        database=jt.database
     )
     c= conn.cursor()
     usertablename=str(UserId)+"_"+lastname
@@ -199,10 +204,10 @@ def getExpensePreviousMonth(UserId,lastname):
 
 def demo(UserId):
     conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password,
+        database=jt.database
     )
     c=conn.cursor()
     c.execute("SELECT Gender,Job_title,City,Income,DOB from USER_RECORD WHERE User_ID = %s",([UserId]))
@@ -231,10 +236,10 @@ def get_previous_n_months(n):
 def dataStoreCron():
     try:
         conn =mysql.connector.connect(
-            host="localhost",
-            user="root",
-            passwd="123456",
-            database="budgetify"
+            host=jt.host,
+            user=jt.user,
+            passwd=jt.password,
+            database=jt.database
         )
         c=conn.cursor()
         order_dict = {'Housing': 1, 'Groceries': 2, 'Leisure': 3, 'Entertainment': 4, 'Transportation': 5, 'Insurance': 6, 'Medical': 7, 'Utilities': 8}
@@ -283,10 +288,10 @@ def age(DOB):
 
 def expense_of_3month(UserId,lastname):
     conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password,
+        database=jt.database
     )
     c= conn.cursor()
     usertablename=str(UserId)+"_"+lastname
@@ -316,10 +321,10 @@ def expense_of_3month(UserId,lastname):
 
 def getCity(UserId):
     conn =mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="123456",
-        database="budgetify"
+        host=jt.host,
+        user=jt.user,
+        passwd=jt.password,
+        database=jt.database
     )
     c=conn.cursor()
     c.execute("SELECT City from USER_RECORD WHERE User_ID = %s",([UserId]))

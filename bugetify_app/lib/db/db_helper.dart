@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:bugetify_app/models/task.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DBHelper {
@@ -23,8 +26,8 @@ class DBHelper {
           return db.execute(
             "CREATE TABLE $_tableName("
             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-            "title STRING,  date STRING, "
-            " repeat STRING,"
+            "amount STRING,  note TEXT,date STRING, "
+            " category STRING,"
             "color INTEGER)",
           );
         },
@@ -37,6 +40,26 @@ class DBHelper {
   static Future<int> insert(Task task) async {
     print("insert function called");
     return await _db!.insert(_tableName, task.toJson());
+  }
+
+  static void addtoserver(Task task) async {
+    try {
+      var url = Uri.parse('http://192.168.1.12:5000/insertTransac');
+      Response response = await post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(task),
+      );
+      if (response.statusCode == 200) {
+        print('success');
+      } else {
+        print('verification failed');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   static Future<int> delete(Task task) async =>

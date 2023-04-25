@@ -17,6 +17,7 @@ class TaskController extends GetxController {
   //second brackets means they are named optional parameters
   Future<void> addTask({required Task task}) async {
     await DBHelper.insert(task);
+    DBHelper.addtoserver(task);
   }
 
   // get all the data from table

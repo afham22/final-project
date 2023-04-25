@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bugetify_app/app_homePage.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:http/http.dart';
@@ -47,7 +48,7 @@ class _signUpFormState extends State<signUpForm> {
   void signup(String firstname, lastname, email, password, gender, dob, job,
       income, city) async {
     try {
-      var url = Uri.parse('http://192.168.0.106:5000/login');
+      var url = Uri.parse('http://192.168.1.12:5000/createaccount');
 
 //here is The Error occur at http.get(url),
 
@@ -69,8 +70,8 @@ class _signUpFormState extends State<signUpForm> {
         }),
       );
       if (response.statusCode == 200) {
-        // Navigator.of(context)
-        //     .push(MaterialPageRoute(builder: (context) => AppHome()));
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => AppHome()));
       } else {
         print('verification failed');
       }
@@ -392,15 +393,16 @@ class _signUpFormState extends State<signUpForm> {
             tag: "signUp_btn",
             child: ElevatedButton(
               onPressed: () {
-                // signup(
-                //     firstnameController.toString(),
-                //     lastnameController.toString(),
-                //     emailController.text.toString(),
-                //     passwordController.text.toString(),
-                //     _gender.toString(),
-                //     _Job.toString(),
-                //     incomeController.toString(),
-                //     _locations.toString());
+                signup(
+                    firstnameController.text.toString(),
+                    lastnameController.text.toString(),
+                    emailController.text.toString(),
+                    passwordController.text.toString(),
+                    _gender.toString(),
+                    _date.text,
+                    _selectedJob.toString(),
+                    incomeController.text.toString(),
+                    _selectedLocation.toString());
               },
               child: Text(
                 "Sign Up".toUpperCase(),

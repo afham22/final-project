@@ -18,6 +18,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   final TaskController _taskController = Get.find<TaskController>();
 
   final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _noteController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
   //String _startTime = DateFormat("hh:mm").format(DateTime.now());
@@ -79,6 +80,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 hint: "Enter amount in Rupees",
                 controller: _titleController,
               ),
+              InputField(
+                  title: "Note",
+                  hint: "Enter note here.",
+                  controller: _noteController),
               InputField(
                 title: "Date",
                 hint: DateFormat.yMd().format(_selectedDate),
@@ -157,10 +162,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
   }
 
   _validateInputs() {
-    if (_titleController.text.isNotEmpty) {
+    if (_titleController.text.isNotEmpty && _noteController.text.isNotEmpty) {
       _addTaskToDB();
       Get.back();
-    } else if (_titleController.text.isEmpty) {
+    } else if (_titleController.text.isEmpty || _noteController.text.isEmpty) {
       Get.snackbar(
         "Required",
         "All fields are required.",
@@ -174,6 +179,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   _addTaskToDB() async {
     await _taskController.addTask(
       task: Task(
+        note: _noteController.text,
         title: _titleController.text.toString(),
         date: DateFormat.yMd().format(_selectedDate),
         repeat: _selectedRepeat,

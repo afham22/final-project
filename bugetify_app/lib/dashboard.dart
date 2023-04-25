@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:bugetify_app/components/inforcard.dart';
@@ -16,14 +17,27 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  final String jwtToken = '';
+
   List<Expense> sales = [];
 
-  Future<List<dynamic>> getJsonFromFirebase() async {
-    final String jsonString = await rootBundle.loadString('assets/data.json');
-    return json.decode(jsonString);
-    // String url = 'https://fir-84100-default-rtdb.firebaseio.com/data.json';
-    // http.Response response = await http.get(Uri.parse(url));
-    // return response.body;
+  Future<List<dynamic>> getJsonFromFirebase() {
+    Completer<List<dynamic>> completer = Completer<List<dynamic>>();
+    var url = "http://192.168.1.12:5000/init";
+    http.get(Uri.parse(url), headers: <String, String>{
+      'Authorization': 'Bearer${jwtToken}'
+    }).then((response) {
+      if (response.statusCode == 200) {
+        var jsonData = jsonDecode(response.body) as List<dynamic>;
+        completer.complete(jsonData); // Resolve the future with the data
+      } else {
+        completer.completeError('Failed to load data from Firebase');
+      }
+    }).catchError((error) {
+      completer.completeError(error);
+    });
+    // Return the future associated with the Completer object
+    return completer.future;
   }
 
   Future loadExpenseData() async {

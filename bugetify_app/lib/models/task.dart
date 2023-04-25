@@ -1,6 +1,7 @@
 class Task {
   int? id;
   String? title;
+  String? note;
   String? date;
   int? color;
   String? repeat;
@@ -8,6 +9,7 @@ class Task {
   Task({
     this.id,
     this.title,
+    this.note,
     this.date,
     this.color,
     this.repeat,
@@ -15,19 +17,21 @@ class Task {
 
   Task.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    title = json['title'].toString();
+    title = json['amount'].toString();
+    note = json['note'];
     date = json['date'];
     color = json['color'];
-    repeat = json['repeat'];
+    repeat = json['category'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
-    data['title'] = this.title;
+    data['amount'] = this.title;
+    data['note'] = this.note;
     data['date'] = this.date;
     data['color'] = this.color;
-    data['repeat'] = this.repeat;
+    data['category'] = this.repeat;
 
     return data;
   }

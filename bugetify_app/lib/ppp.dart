@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:http/http.dart' as http;
 
 class PPP extends StatefulWidget {
   const PPP({Key? key}) : super(key: key);
@@ -12,17 +12,33 @@ class PPP extends StatefulWidget {
 }
 
 class _PPPState extends State<PPP> {
+  bool _showCharts = false;
   List<Expense> sales = [];
+  String _selectedLocation = 'Bangalore';
 
-  Future<String> getJsonFromFirebase() async {
-    return await rootBundle.loadString('assets/data.json');
-    // String url = 'https://fir-84100-default-rtdb.firebaseio.com/data.json';
-    // http.Response response = await http.get(Uri.parse(url));
-    // return response.body;
+  Future<String> getJsonFromFirebase(String city) async {
+    try {
+      var url = Uri.parse('http://192.168.1.12:5000/PPPCalculation');
+      Response response = await post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({'city': city}),
+      );
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        print('verification failed');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+    return 'error';
   }
 
   Future loadExpenseData() async {
-    final String jsonString = await getJsonFromFirebase();
+    final String jsonString = await getJsonFromFirebase(_selectedLocation);
     final dynamic jsonResponse = json.decode(jsonString);
     for (Map<String, dynamic> i in jsonResponse) {
       sales.add(Expense.fromJson(i));
@@ -31,7 +47,6 @@ class _PPPState extends State<PPP> {
 
   @override
   void initState() {
-    loadExpenseData();
     super.initState();
   }
 
@@ -58,24 +73,41 @@ class _PPPState extends State<PPP> {
                         Container(
                           margin: EdgeInsets.only(right: 16),
                           child: DropdownButton<String>(
-                            value: 'Option 1',
+                            value: _selectedLocation,
                             items: <String>[
-                              'Option 1',
-                              'Option 2',
-                              'Option 3',
-                              'Option 4'
+                              'Kochi',
+                              'Bangalore',
+                              'Kolkata',
+                              'Mumbai',
+                              'Lucknow',
+                              'Patna',
+                              'Hyderabad',
+                              'Chennai',
+                              'Raipur',
+                              'Delhi',
                             ].map((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(value),
                               );
                             }).toList(),
-                            onChanged: (String? newValue) {},
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedLocation = value.toString();
+                              });
+                            },
                           ),
                         ),
                         TextButton(
-                          onPressed: () {
-                            // loadExpenseData();
+                          onPressed: () async {
+                            setState(() {
+                              _showCharts = false;
+                              sales.clear();
+                            });
+                            await loadExpenseData();
+                            setState(() {
+                              _showCharts = true;
+                            });
                           },
                           child: Text('Apply'),
                           style: ButtonStyle(
@@ -91,285 +123,332 @@ class _PPPState extends State<PPP> {
                   SizedBox(
                     height: 20.0,
                   ),
-                  FutureBuilder(
-                    future: getJsonFromFirebase(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return SfCartesianChart(
-                          title: ChartTitle(text: 'Housing'),
-                          primaryXAxis: CategoryAxis(
+                  if (_showCharts)
+                    FutureBuilder(
+                      future: getJsonFromFirebase(_selectedLocation),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return SfCartesianChart(
+                            title: ChartTitle(text: 'Housing'),
+                            primaryXAxis: CategoryAxis(
+                                majorGridLines: const MajorGridLines(
+                                    color: Colors.transparent),
+                                minorGridLines: const MinorGridLines(
+                                    color: Colors.transparent)),
+                            primaryYAxis: NumericAxis(
                               majorGridLines: const MajorGridLines(
                                   color: Colors.transparent),
                               minorGridLines: const MinorGridLines(
-                                  color: Colors.transparent)),
-                          primaryYAxis: NumericAxis(
-                            majorGridLines:
-                                const MajorGridLines(color: Colors.transparent),
-                            minorGridLines:
-                                const MinorGridLines(color: Colors.transparent),
-                          ),
-                          series: <ChartSeries>[
-                            BarSeries<Expense, String>(
-                              dataSource: sales,
-                              xValueMapper: (Expense details, _) =>
-                                  details.month,
-                              yValueMapper: (Expense details, _) =>
-                                  details.Housing,
-                              color: Colors.red,
-                              width: 0.4,
+                                  color: Colors.transparent),
                             ),
-                          ],
-                        );
-                      } else {
-                        return Center(child: CircularProgressIndicator());
-                      }
-                    },
-                  ),
+                            series: <ChartSeries>[
+                              BarSeries<Expense, String>(
+                                dataSource: sales,
+                                xValueMapper: (Expense details, _) {
+                                  String label =
+                                      '${details.dest_city}, ${details.cur_city}';
+                                  return label.replaceAll(
+                                      RegExp(', |null|,null'), '');
+                                },
+                                yValueMapper: (Expense details, _) =>
+                                    details.Housing,
+                                color: Colors.red,
+                                width: 0.4,
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                      },
+                    ),
                   const SizedBox(height: 16),
-                  FutureBuilder(
-                    future: getJsonFromFirebase(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return SfCartesianChart(
-                          title: ChartTitle(text: 'Groceries'),
-                          primaryXAxis: CategoryAxis(
+                  if (_showCharts)
+                    FutureBuilder(
+                      future: getJsonFromFirebase(_selectedLocation),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return SfCartesianChart(
+                            title: ChartTitle(text: 'Groceries'),
+                            primaryXAxis: CategoryAxis(
+                                majorGridLines: const MajorGridLines(
+                                    color: Colors.transparent),
+                                minorGridLines: const MinorGridLines(
+                                    color: Colors.transparent)),
+                            primaryYAxis: NumericAxis(
                               majorGridLines: const MajorGridLines(
                                   color: Colors.transparent),
                               minorGridLines: const MinorGridLines(
-                                  color: Colors.transparent)),
-                          primaryYAxis: NumericAxis(
-                            majorGridLines:
-                                const MajorGridLines(color: Colors.transparent),
-                            minorGridLines:
-                                const MinorGridLines(color: Colors.transparent),
-                          ),
-                          series: <ChartSeries>[
-                            BarSeries<Expense, String>(
-                              dataSource: sales,
-                              xValueMapper: (Expense details, _) =>
-                                  details.month,
-                              yValueMapper: (Expense details, _) =>
-                                  details.Groceries,
-                              color: Colors.green,
-                              width: 0.4,
+                                  color: Colors.transparent),
                             ),
-                          ],
-                        );
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    },
-                  ),
+                            series: <ChartSeries>[
+                              BarSeries<Expense, String>(
+                                dataSource: sales,
+                                xValueMapper: (Expense details, _) {
+                                  String label =
+                                      '${details.dest_city}, ${details.cur_city}';
+                                  return label.replaceAll(
+                                      RegExp(', |null|,null'), '');
+                                },
+                                yValueMapper: (Expense details, _) =>
+                                    details.Groceries,
+                                color: Colors.green,
+                                width: 0.4,
+                              ),
+                            ],
+                          );
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      },
+                    ),
                   const SizedBox(height: 16),
-                  FutureBuilder(
-                    future: getJsonFromFirebase(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return SfCartesianChart(
-                          title: ChartTitle(text: 'Leisure'),
-                          primaryXAxis: CategoryAxis(
+                  if (_showCharts)
+                    FutureBuilder(
+                      future: getJsonFromFirebase(_selectedLocation),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return SfCartesianChart(
+                            title: ChartTitle(text: 'Leisure'),
+                            primaryXAxis: CategoryAxis(
+                                majorGridLines: const MajorGridLines(
+                                    color: Colors.transparent),
+                                minorGridLines: const MinorGridLines(
+                                    color: Colors.transparent)),
+                            primaryYAxis: NumericAxis(
                               majorGridLines: const MajorGridLines(
                                   color: Colors.transparent),
                               minorGridLines: const MinorGridLines(
-                                  color: Colors.transparent)),
-                          primaryYAxis: NumericAxis(
-                            majorGridLines:
-                                const MajorGridLines(color: Colors.transparent),
-                            minorGridLines:
-                                const MinorGridLines(color: Colors.transparent),
-                          ),
-                          series: <ChartSeries>[
-                            BarSeries<Expense, String>(
-                              dataSource: sales,
-                              xValueMapper: (Expense details, _) =>
-                                  details.month,
-                              yValueMapper: (Expense details, _) =>
-                                  details.Leisure,
-                              color: Colors.blue,
-                              width: 0.4,
+                                  color: Colors.transparent),
                             ),
-                          ],
-                        );
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    },
-                  ),
+                            series: <ChartSeries>[
+                              BarSeries<Expense, String>(
+                                dataSource: sales,
+                                xValueMapper: (Expense details, _) {
+                                  String label =
+                                      '${details.dest_city}, ${details.cur_city}';
+                                  return label.replaceAll(
+                                      RegExp(', |null|,null'), '');
+                                },
+                                yValueMapper: (Expense details, _) =>
+                                    details.Leisure,
+                                color: Colors.blue,
+                                width: 0.4,
+                              ),
+                            ],
+                          );
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      },
+                    ),
                   const SizedBox(height: 16),
-                  FutureBuilder(
-                    future: getJsonFromFirebase(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return SfCartesianChart(
-                          title: ChartTitle(text: 'Entertainment'),
-                          primaryXAxis: CategoryAxis(
+                  if (_showCharts)
+                    FutureBuilder(
+                      future: getJsonFromFirebase(_selectedLocation),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return SfCartesianChart(
+                            title: ChartTitle(text: 'Entertainment'),
+                            primaryXAxis: CategoryAxis(
+                                majorGridLines: const MajorGridLines(
+                                    color: Colors.transparent),
+                                minorGridLines: const MinorGridLines(
+                                    color: Colors.transparent)),
+                            primaryYAxis: NumericAxis(
                               majorGridLines: const MajorGridLines(
                                   color: Colors.transparent),
                               minorGridLines: const MinorGridLines(
-                                  color: Colors.transparent)),
-                          primaryYAxis: NumericAxis(
-                            majorGridLines:
-                                const MajorGridLines(color: Colors.transparent),
-                            minorGridLines:
-                                const MinorGridLines(color: Colors.transparent),
-                          ),
-                          series: <ChartSeries>[
-                            BarSeries<Expense, String>(
-                              dataSource: sales,
-                              xValueMapper: (Expense details, _) =>
-                                  details.month,
-                              yValueMapper: (Expense details, _) =>
-                                  details.Entertainment,
-                              color: Colors.black,
-                              width: 0.4,
+                                  color: Colors.transparent),
                             ),
-                          ],
-                        );
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    },
-                  ),
+                            series: <ChartSeries>[
+                              BarSeries<Expense, String>(
+                                dataSource: sales,
+                                xValueMapper: (Expense details, _) {
+                                  String label =
+                                      '${details.dest_city}, ${details.cur_city}';
+                                  return label.replaceAll(
+                                      RegExp(', |null|,null'), '');
+                                },
+                                yValueMapper: (Expense details, _) =>
+                                    details.Entertainment,
+                                color: Colors.black,
+                                width: 0.4,
+                              ),
+                            ],
+                          );
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      },
+                    ),
                   const SizedBox(height: 16),
-                  FutureBuilder(
-                    future: getJsonFromFirebase(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return SfCartesianChart(
-                          title: ChartTitle(text: 'Transportation'),
-                          primaryXAxis: CategoryAxis(
+                  if (_showCharts)
+                    FutureBuilder(
+                      future: getJsonFromFirebase(_selectedLocation),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return SfCartesianChart(
+                            title: ChartTitle(text: 'Transportation'),
+                            primaryXAxis: CategoryAxis(
+                                majorGridLines: const MajorGridLines(
+                                    color: Colors.transparent),
+                                minorGridLines: const MinorGridLines(
+                                    color: Colors.transparent)),
+                            primaryYAxis: NumericAxis(
                               majorGridLines: const MajorGridLines(
                                   color: Colors.transparent),
                               minorGridLines: const MinorGridLines(
-                                  color: Colors.transparent)),
-                          primaryYAxis: NumericAxis(
-                            majorGridLines:
-                                const MajorGridLines(color: Colors.transparent),
-                            minorGridLines:
-                                const MinorGridLines(color: Colors.transparent),
-                          ),
-                          series: <ChartSeries>[
-                            BarSeries<Expense, String>(
-                              dataSource: sales,
-                              xValueMapper: (Expense details, _) =>
-                                  details.month,
-                              yValueMapper: (Expense details, _) =>
-                                  details.Transportation,
-                              color: Colors.yellow,
-                              width: 0.4,
+                                  color: Colors.transparent),
                             ),
-                          ],
-                        );
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    },
-                  ),
+                            series: <ChartSeries>[
+                              BarSeries<Expense, String>(
+                                dataSource: sales,
+                                xValueMapper: (Expense details, _) {
+                                  String label =
+                                      '${details.dest_city}, ${details.cur_city}';
+                                  return label.replaceAll(
+                                      RegExp(', |null|,null'), '');
+                                },
+                                yValueMapper: (Expense details, _) =>
+                                    details.Transportation,
+                                color: Colors.yellow,
+                                width: 0.4,
+                              ),
+                            ],
+                          );
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      },
+                    ),
                   const SizedBox(height: 16),
-                  FutureBuilder(
-                    future: getJsonFromFirebase(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return SfCartesianChart(
-                          title: ChartTitle(text: 'Insurance'),
-                          primaryXAxis: CategoryAxis(
+                  if (_showCharts)
+                    FutureBuilder(
+                      future: getJsonFromFirebase(_selectedLocation),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return SfCartesianChart(
+                            title: ChartTitle(text: 'Insurance'),
+                            primaryXAxis: CategoryAxis(
+                                majorGridLines: const MajorGridLines(
+                                    color: Colors.transparent),
+                                minorGridLines: const MinorGridLines(
+                                    color: Colors.transparent)),
+                            primaryYAxis: NumericAxis(
                               majorGridLines: const MajorGridLines(
                                   color: Colors.transparent),
                               minorGridLines: const MinorGridLines(
-                                  color: Colors.transparent)),
-                          primaryYAxis: NumericAxis(
-                            majorGridLines:
-                                const MajorGridLines(color: Colors.transparent),
-                            minorGridLines:
-                                const MinorGridLines(color: Colors.transparent),
-                          ),
-                          series: <ChartSeries>[
-                            BarSeries<Expense, String>(
-                              dataSource: sales,
-                              xValueMapper: (Expense details, _) =>
-                                  details.month,
-                              yValueMapper: (Expense details, _) =>
-                                  details.Insurance,
-                              color: Colors.brown,
-                              width: 0.4,
+                                  color: Colors.transparent),
                             ),
-                          ],
-                        );
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    },
-                  ),
+                            series: <ChartSeries>[
+                              BarSeries<Expense, String>(
+                                dataSource: sales,
+                                xValueMapper: (Expense details, _) {
+                                  String label =
+                                      '${details.dest_city}, ${details.cur_city}';
+                                  return label.replaceAll(
+                                      RegExp(', |null|,null'), '');
+                                },
+                                yValueMapper: (Expense details, _) =>
+                                    details.Insurance,
+                                color: Colors.brown,
+                                width: 0.4,
+                              ),
+                            ],
+                          );
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      },
+                    ),
                   const SizedBox(height: 16),
-                  FutureBuilder(
-                    future: getJsonFromFirebase(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return SfCartesianChart(
-                          title: ChartTitle(text: 'Medical'),
-                          primaryXAxis: CategoryAxis(
+                  if (_showCharts)
+                    FutureBuilder(
+                      future: getJsonFromFirebase(_selectedLocation),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return SfCartesianChart(
+                            title: ChartTitle(text: 'Medical'),
+                            primaryXAxis: CategoryAxis(
+                                majorGridLines: const MajorGridLines(
+                                    color: Colors.transparent),
+                                minorGridLines: const MinorGridLines(
+                                    color: Colors.transparent)),
+                            primaryYAxis: NumericAxis(
                               majorGridLines: const MajorGridLines(
                                   color: Colors.transparent),
                               minorGridLines: const MinorGridLines(
-                                  color: Colors.transparent)),
-                          primaryYAxis: NumericAxis(
-                            majorGridLines:
-                                const MajorGridLines(color: Colors.transparent),
-                            minorGridLines:
-                                const MinorGridLines(color: Colors.transparent),
-                          ),
-                          series: <ChartSeries>[
-                            BarSeries<Expense, String>(
-                              dataSource: sales,
-                              xValueMapper: (Expense details, _) =>
-                                  details.month,
-                              yValueMapper: (Expense details, _) =>
-                                  details.Medical,
-                              color: Colors.orange,
-                              width: 0.4,
+                                  color: Colors.transparent),
                             ),
-                          ],
-                        );
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    },
-                  ),
+                            series: <ChartSeries>[
+                              BarSeries<Expense, String>(
+                                dataSource: sales,
+                                xValueMapper: (Expense details, _) {
+                                  String label =
+                                      '${details.dest_city}, ${details.cur_city}';
+                                  return label.replaceAll(
+                                      RegExp(', |null|,null'), '');
+                                },
+                                yValueMapper: (Expense details, _) =>
+                                    details.Medical,
+                                color: Colors.orange,
+                                width: 0.4,
+                              ),
+                            ],
+                          );
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      },
+                    ),
                   const SizedBox(height: 16),
-                  FutureBuilder(
-                    future: getJsonFromFirebase(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return SfCartesianChart(
-                          title: ChartTitle(text: 'Utilities'),
-                          primaryXAxis: CategoryAxis(
+                  if (_showCharts)
+                    FutureBuilder(
+                      future: getJsonFromFirebase(_selectedLocation),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return SfCartesianChart(
+                            title: ChartTitle(text: 'Utilities'),
+                            primaryXAxis: CategoryAxis(
+                                majorGridLines: const MajorGridLines(
+                                    color: Colors.transparent),
+                                minorGridLines: const MinorGridLines(
+                                    color: Colors.transparent)),
+                            primaryYAxis: NumericAxis(
                               majorGridLines: const MajorGridLines(
                                   color: Colors.transparent),
                               minorGridLines: const MinorGridLines(
-                                  color: Colors.transparent)),
-                          primaryYAxis: NumericAxis(
-                            majorGridLines:
-                                const MajorGridLines(color: Colors.transparent),
-                            minorGridLines:
-                                const MinorGridLines(color: Colors.transparent),
-                          ),
-                          series: <ChartSeries>[
-                            BarSeries<Expense, String>(
-                              dataSource: sales,
-                              xValueMapper: (Expense details, _) =>
-                                  details.month,
-                              yValueMapper: (Expense details, _) =>
-                                  details.Utilities,
-                              color: Colors.pink,
-                              width: 0.4,
+                                  color: Colors.transparent),
                             ),
-                          ],
-                        );
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    },
-                  ),
+                            series: <ChartSeries>[
+                              BarSeries<Expense, String>(
+                                dataSource: sales,
+                                xValueMapper: (Expense details, _) {
+                                  String label =
+                                      '${details.dest_city}, ${details.cur_city}';
+                                  return label.replaceAll(
+                                      RegExp(', |null|,null'), '');
+                                },
+                                yValueMapper: (Expense details, _) =>
+                                    details.Utilities,
+                                color: Colors.pink,
+                                width: 0.4,
+                              ),
+                            ],
+                          );
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      },
+                    ),
                 ],
               ),
             )));
@@ -378,7 +457,8 @@ class _PPPState extends State<PPP> {
 
 class Expense {
   Expense(
-      this.month,
+      this.dest_city,
+      this.cur_city,
       this.Housing,
       this.Groceries,
       this.Entertainment,
@@ -387,26 +467,44 @@ class Expense {
       this.Medical,
       this.Insurance,
       this.Utilities);
-  final String month;
-  final int Housing;
-  final int Groceries;
-  final int Entertainment;
-  final int Transportation;
-  final int Leisure;
-  final int Medical;
-  final int Insurance;
-  final int Utilities;
+  final String dest_city;
+  final String cur_city;
+  final num Housing;
+  final num Groceries;
+  final num Entertainment;
+  final num Transportation;
+  final num Leisure;
+  final num Medical;
+  final num Insurance;
+  final num Utilities;
 
   factory Expense.fromJson(Map<String, dynamic> parsedJson) {
     return Expense(
-        parsedJson['month'].toString(),
-        parsedJson['Housing'],
-        parsedJson['Groceries'],
-        parsedJson['Entertainment'],
-        parsedJson['Transportation'],
-        parsedJson['Leisure'],
-        parsedJson['Medical'],
-        parsedJson['Insurance'],
-        parsedJson['Utilities']);
+        parsedJson['dest_city'].toString(),
+        parsedJson['cur_city'].toString(),
+        parsedJson.containsKey('Housing')
+            ? num.parse(parsedJson['Housing'])
+            : 0,
+        parsedJson.containsKey('Groceries')
+            ? num.parse(parsedJson['Groceries'])
+            : 0,
+        parsedJson.containsKey('Entertainment')
+            ? num.parse(parsedJson['Entertainment'])
+            : 0,
+        parsedJson.containsKey('Transportation')
+            ? num.parse(parsedJson['Transportation'])
+            : 0,
+        parsedJson.containsKey('Leisure')
+            ? num.parse(parsedJson['Leisure'])
+            : 0,
+        parsedJson.containsKey('Medical')
+            ? num.parse(parsedJson['Medical'])
+            : 0,
+        parsedJson.containsKey('Insurance')
+            ? num.parse(parsedJson['Insurance'])
+            : 0,
+        parsedJson.containsKey('Utilities')
+            ? num.parse(parsedJson['Utilities'])
+            : 0);
   }
 }

@@ -34,6 +34,11 @@ class TaskTile extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 Text(
+                  task.note!,
+                  style: TextStyle(fontSize: 16, color: Colors.grey[100]),
+                ),
+                SizedBox(height: 12),
+                Text(
                   task.repeat?.toString() ?? 'j',
                   style: TextStyle(
                       fontSize: 16,

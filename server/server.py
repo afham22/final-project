@@ -57,7 +57,7 @@ def auth_required(endpoint_name):
             if not auth_header:
                 return jsonify({'message': 'Authorization header is missing'}), 401
             # Extract the token from the header
-            token = auth_header.split(' ')[1]
+            token = auth_header.split(' ')[0]
             try:
                 # Verify the token
                 payload = jwt.decode(token, jt.public_key, algorithms=['RS256'])
@@ -94,7 +94,7 @@ def handle_errors(f):
 
 
 @app.route('/createaccount', methods = ['POST'])
-@handle_errors
+# @handle_errors
 def createaccount():
 	data = request.get_json()
 	firstname = data['firstname']
@@ -127,44 +127,44 @@ def login():
 	else:
 		return 'Invalid password', 401
 
-@app.route('/PPPCalculation', methods = ['GET'])
-@auth_required('PPPCalculation')
-@handle_errors
+@app.route('/PPPCalculation', methods = ['POST'])
+# @auth_required('PPPCalculation')
+# @handle_errors
 def PPPCalc():
-	user_id = request.decoded_token.get('user_id')
-	lastname = request.decoded_token.get('lastname')
-	data = request.get_json()
-	city = data['city']
-	category_list = sqls.getExpensePreviousMonth(user_id,lastname)
-	cur_city = sqls.getCity(user_id)
-
-	res= comp.PPP(category_list, city, cur_city)
-	for key, value in res[1].items():
-		if isinstance(value, float):
-			res[1][key] = str(value)
-	return jsonify(res[0],res[1])
+	# user_id = request.decoded_token.get('user_id')
+	# lastname = request.decoded_token.get('lastname')
+    user_id = 6
+    lastname = 'afham'
+    data = request.get_json()
+    city = data['city']
+    category_list = sqls.getExpensePreviousMonth(user_id,lastname)
+    cur_city = sqls.getCity(user_id)
+    res= comp.PPP(category_list, city, cur_city)
+    for key, value in res[1].items():
+          if isinstance(value, float):
+                res[1][key] = str(value)
+    return jsonify(res[0],res[1])
 
 
 @app.route('/DemoCompare', methods = ['GET'])
-@auth_required('DemoCompare_auth')
-@handle_errors
+# @auth_required('DemoCompare_auth')
+# @handle_errors
 def demoCompare():
-	user_id = request.decoded_token.get('user_id')
-	lastname = request.decoded_token.get('lastname')
-	data=sqls.demo(user_id)
-	age=data[4]
-	income=data[3]
-	job_title=data[1]
-	gender=data[0]
-	city=data[2]
-
-	res = sqls.getExpensePreviousMonth(user_id, lastname)
-	user_expense = dict(res)
-	user_expense['Name'] = 'Your_Expense'
-	# return user_expense
-
-	pred=comp.evaluate(age,income,job_title,gender,city)
-	return jsonify({'Housing':str (pred[0]),
+	# user_id = request.decoded_token.get('user_id')
+	# lastname = request.decoded_token.get('lastname')
+    user_id = 6
+    lastname = 'afham'
+    data=sqls.demo(user_id)
+    age=data[4]
+    income=data[3]
+    job_title=data[1]
+    gender=data[0]
+    city=data[2]
+    res = sqls.getExpensePreviousMonth(user_id, lastname)
+    user_expense = dict(res)
+    user_expense['Name'] = 'Your_Expense'
+    pred=comp.evaluate(age,income,job_title,gender,city)
+    return jsonify({'Housing':str (pred[0]),
 		 'Groceries':str (pred[1]),
 		 'Entertainment':str (pred[2]),
 		 'Leisure':str (pred[3]),
@@ -176,34 +176,45 @@ def demoCompare():
 		 }, user_expense)
 
 
-@app.route('/insertTransac', methods = ['POST'])
-@auth_required('insertTransac')
-@handle_errors
+@app.route('/insertTransac', methods=['POST'])
+# @auth_required('insertTransac')
+# @handle_errors
 def insertTransac():
-	user_id = request.decoded_token.get('user_id')
-	lastname = request.decoded_token.get('lastname')
-	data=request.get_json()
-	tid=data['tid']
-	date=data['date']
-	category=data['category']
-	amount=data['amount']
-	sqls.insert_value_trans(tid,date,category,amount,lastname,user_id)
-	return 'Transaction inserted successfully'
+    # user_id = request.decoded_token.get('user_id')
+    # lastname = request.decoded_token.get('lastname')
+    user_id = 6
+    lastname = 'afham'
+    data = request.get_json()
+    tid = data['id']
+    date = data['date']
+    category = data['category']
+    color = data['color']
+    note = data['note']
+    amount = data['amount']
+    sqls.insert_value_trans(tid, date, category, amount, lastname,color,note,user_id)
+    return 'Transaction inserted successfully'
+
 
 
 @app.route('/init', methods = ['GET'])
-@auth_required('init')
+# @auth_required('init')
 @handle_errors
 def init():
-	user_id = request.decoded_token.get('user_id')
-	lastname = request.decoded_token.get('lastname')
-	res = sqls.expense_of_3month(user_id, lastname)
-	res.append({'gold':gold_price,'dollar':dollar})
-	return jsonify(res)
+    # user_id = request.decoded_token.get('user_id')
+    # lastname = request.decoded_token.get('lastname')
+    user_id = 6
+    lastname = 'afham'
+    res = sqls.expense_of_3month(user_id, lastname)
+    res.append({'gold': gold_price, 'dollar': dollar})
+
+
+    # Return the response with the JWT token
+    return jsonify(res)
+
 
 
 @app.route('/checkEmail', methods = ['POST'])
-@handle_errors
+# @handle_errors
 def checkEmail():
 	data = request.get_json()
 	email = data['email']
@@ -214,4 +225,4 @@ def checkEmail():
 
 if __name__ == '__main__':
 	scheduler.start()
-	app.run(debug = True)
+	app.run(debug = True,host="0.0.0.0",port=5000)

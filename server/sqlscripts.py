@@ -114,7 +114,7 @@ def create_user_expense_table(uid,lname):
     c=conn.cursor()
     usertablename=lname+"_"+uid
     print(usertablename)
-    query = "CREATE TABLE {} (Trans_ID INT,Date DATETIME,Category VARCHAR(50),Amount INT,Notes TINYTEXT,Color TINYTEXT)".format(usertablename)
+    query = "CREATE TABLE {} (Trans_ID INT PRIMARY KEY AUTO_INCREMENT,Date DATETIME,Category VARCHAR(50),Amount INT,Notes TINYTEXT,Color TINYTEXT)".format(usertablename)
     c.execute(query)
     conn.commit
     conn.close()
@@ -138,7 +138,7 @@ def sumOfExpenseFor30(UserId,lastname):
     conn.close()
 
 
-def insert_value_trans(transid,date,cat,amo,lastname,col,note,userid):
+def insert_value_trans(date,cat,amo,lastname,col,note,userid):
     conn =mysql.connector.connect(
         host=jt.host,
         user=jt.user,
@@ -150,8 +150,8 @@ def insert_value_trans(transid,date,cat,amo,lastname,col,note,userid):
     date_str = date
     date_obj = datetime.datetime.strptime(date_str, '%m/%d/%Y')
     new_date_str = datetime.datetime.strftime(date_obj, '%Y-%m-%d')
-    sql=("INSERT INTO {} (Trans_ID,Date,Category,Amount,Notes,Color) VALUES (%s,%s,%s,%s,%s,%s)".format(usertablename))
-    c.execute(sql,(transid,new_date_str,cat,amo,note,col))
+    sql=("INSERT INTO {} (Date,Category,Amount,Notes,Color) VALUES (%s,%s,%s,%s,%s)".format(usertablename))
+    c.execute(sql,(new_date_str,cat,amo,note,col))
     conn.commit()
     conn.close()
 

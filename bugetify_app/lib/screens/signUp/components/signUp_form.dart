@@ -3,21 +3,39 @@ import 'dart:convert';
 import 'package:bugetify_app/app_homePage.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 
 class signUpForm extends StatefulWidget {
-  signUpForm({
-    Key? key,
-  }) : super(key: key);
+  TextEditingController emailController = TextEditingController();
+
+  signUpForm(this.emailController);
 
   @override
   _signUpFormState createState() => _signUpFormState();
 }
 
 class _signUpFormState extends State<signUpForm> {
-  String? _gender;
-  final _passwordController = TextEditingController();
+  String? _gender = 'male';
+
+  TextEditingController _password = TextEditingController();
+  TextEditingController _verifyPassword = TextEditingController();
+  bool _isPasswordMatched = false;
+
+  void _submitPassword(password, verifyPassword) {
+    if (password.text.toString() == verifyPassword.text.toString() &&
+        _password.text.isNotEmpty &&
+        _verifyPassword.text.isNotEmpty) {
+      setState(() {
+        _isPasswordMatched = true;
+      });
+    } else {
+      setState(() {
+        _isPasswordMatched = false;
+      });
+    }
+  }
 
   String _selectedLocation = 'Bangalore';
   String _selectedJob = 'Accountant';
@@ -37,41 +55,91 @@ class _signUpFormState extends State<signUpForm> {
     'Teaching faculty'
   ];
 
-  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController firstnameController = TextEditingController();
   TextEditingController lastnameController = TextEditingController();
   TextEditingController incomeController = TextEditingController();
 
   TextEditingController _date = TextEditingController();
+  bool _isError1 = false;
+  bool _isError2 = false;
+  bool _ismin1 = true;
+  bool _ismin2 = true;
+
+  void _validateText(_textEditingController) {
+    if (_textEditingController.text.isEmpty) {
+      setState(() {
+        _ismin1 = true;
+      });
+    } else if (_textEditingController.text.length > 15) {
+      setState(() {
+        _isError1 = true;
+      });
+    } else if (!_textEditingController.text.contains(RegExp(r'^[a-zA-Z]+$'))) {
+      setState(() {
+        _isError1 = true;
+      });
+    } else {
+      setState(() {
+        _isError1 = false;
+        _ismin1 = false;
+      });
+    }
+  }
+
+  void _vaalidateText(_textEditingController) {
+    if (_textEditingController.text.isEmpty) {
+      setState(() {
+        _ismin2 = true;
+      });
+    } else if (_textEditingController.text.length > 15) {
+      setState(() {
+        _isError2 = true;
+      });
+    } else if (!_textEditingController.text.contains(RegExp(r'^[a-zA-Z]+$'))) {
+      setState(() {
+        _isError2 = true;
+      });
+    } else {
+      setState(() {
+        _isError2 = false;
+        _ismin2 = false;
+      });
+    }
+  }
 
   void signup(String firstname, lastname, email, password, gender, dob, job,
       income, city) async {
     try {
-      var url = Uri.parse('http://192.168.1.12:5000/createaccount');
+      if (!_isError1 &&
+          !_isError2 &&
+          !_ismin1 &&
+          !_ismin2 &&
+          _isPasswordMatched) {
+        var url = Uri.parse('http://192.168.1.13/createaccount');
 
-//here is The Error occur at http.get(url),
+        Response response = await post(
+          url,
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, String>{
+            'firstname': firstname,
+            'lastname': lastname,
+            'email': email,
+            'password': password,
+            'gender': gender,
+            'dob': dob,
+            'jobtitle': job,
+            'income': income,
+            'city': city
+          }),
+        );
 
-      Response response = await post(
-        url,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'firstname': firstname,
-          'lastname': lastname,
-          'email': email,
-          'password': password,
-          'gender': gender,
-          'dob': dob,
-          'jobtitle': job,
-          'income': income,
-          'city': city
-        }),
-      );
-      if (response.statusCode == 200) {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => AppHome()));
+        if (response.statusCode == 200) {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => AppHome()));
+        }
       } else {
         print('verification failed');
       }
@@ -88,34 +156,53 @@ class _signUpFormState extends State<signUpForm> {
           SizedBox(height: 40.0),
           TextFormField(
             controller: firstnameController,
+            onChanged: (_) => _validateText(firstnameController),
             textInputAction: TextInputAction.next,
             obscureText: false,
             cursorColor: Color(0xFF6F35A5),
             decoration: InputDecoration(
               hintText: "Enter your first name",
+              errorText: (_isError1
+                  ? 'Only upto 15 alphabetic charcters allowed'
+                  : _ismin1
+                      ? 'Enter your firstname'
+                      : null),
               prefixIcon: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Icon(Icons.person),
               ),
             ),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-Z]+$')),
+            ],
           ),
           SizedBox(height: 16.0),
           TextFormField(
             controller: lastnameController,
+            onChanged: (_) => _vaalidateText(lastnameController),
             textInputAction: TextInputAction.next,
             obscureText: false,
             cursorColor: Color(0xFF6F35A5),
             decoration: InputDecoration(
               hintText: "Enter your last name",
+              errorText: _isError2
+                  ? 'Only upto 15 alphabetic charcters allowed'
+                  : _ismin2
+                      ? 'Enter your second name'
+                      : null,
               prefixIcon: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Icon(Icons.person),
               ),
             ),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-Z]+$')),
+            ],
           ),
           SizedBox(height: 16.0),
           TextFormField(
-            controller: emailController,
+            readOnly: true,
+            initialValue: widget.emailController.text,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             validator: (value) => EmailValidator.validate(value)
@@ -133,7 +220,7 @@ class _signUpFormState extends State<signUpForm> {
           ),
           SizedBox(height: 16.0),
           TextFormField(
-            controller: passwordController,
+            controller: _password,
             textInputAction: TextInputAction.next,
             obscureText: true,
             cursorColor: Color(0xFF6F35A5),
@@ -148,31 +235,29 @@ class _signUpFormState extends State<signUpForm> {
           SizedBox(height: 16.0),
           TextFormField(
             textInputAction: TextInputAction.done,
+            controller: _verifyPassword,
             obscureText: true,
             cursorColor: Color(0xFF6F35A5),
             decoration: InputDecoration(
               hintText: "Re-enter your password",
+              errorText: !_isPasswordMatched ? 'Password not matched' : null,
               prefixIcon: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Icon(Icons.lock),
               ),
             ),
-            validator: (value) {
-              final password = passwordController.text;
-              if (value != password) {
-                return 'Passwords do not match';
-              }
-              return null;
-            },
           ),
           SizedBox(height: 16.0),
           TextFormField(
             controller: incomeController,
             textInputAction: TextInputAction.next,
             obscureText: false,
+            keyboardType: TextInputType.number,
             cursorColor: Color(0xFF6F35A5),
             decoration: InputDecoration(
               hintText: "Enter your Income",
+              errorText:
+                  incomeController.text.isEmpty ? 'Enter your income' : null,
               prefixIcon: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Icon(Icons.money),
@@ -393,10 +478,11 @@ class _signUpFormState extends State<signUpForm> {
             tag: "signUp_btn",
             child: ElevatedButton(
               onPressed: () {
+                _submitPassword(_password, _verifyPassword);
                 signup(
                     firstnameController.text.toString(),
                     lastnameController.text.toString(),
-                    emailController.text.toString(),
+                    widget.emailController.text.toString(),
                     passwordController.text.toString(),
                     _gender.toString(),
                     _date.text,

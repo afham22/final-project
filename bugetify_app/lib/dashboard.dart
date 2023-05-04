@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bugetify_app/components/inforcard.dart';
 import 'package:bugetify_app/ppp.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class Dashboard extends StatefulWidget {
@@ -17,16 +19,16 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  final String jwtToken = '';
-
+  String _token = '';
   List<Expense> sales = [];
 
-  Future<List<dynamic>> getJsonFromFirebase() {
+  Future<List<dynamic>> getJsonFromFirebase() async {
     Completer<List<dynamic>> completer = Completer<List<dynamic>>();
-    var url = "http://192.168.1.12:5000/init";
-    http.get(Uri.parse(url), headers: <String, String>{
-      'Authorization': 'Bearer${jwtToken}'
-    }).then((response) {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    var url = "http://192.168.1.13:5000/init";
+    http.get(Uri.parse(url),
+        headers: <String, String>{'Authorization': token!}).then((response) {
       if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body) as List<dynamic>;
         completer.complete(jsonData); // Resolve the future with the data
@@ -51,8 +53,17 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void initState() {
+    _getTokenFromPrefs();
     loadExpenseData();
     super.initState();
+  }
+
+  Future<void> _getTokenFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    setState(() {
+      _token = token!;
+    });
   }
 
   @override

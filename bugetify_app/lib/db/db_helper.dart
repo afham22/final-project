@@ -44,7 +44,7 @@ class DBHelper {
 
   static void addtoserver(Task task) async {
     try {
-      var url = Uri.parse('http://192.168.1.12:5000/insertTransac');
+      var url = Uri.parse('http://192.168.1.13:5000/insertTransac');
       Response response = await post(
         url,
         headers: <String, String>{

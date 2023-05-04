@@ -1,11 +1,9 @@
 import 'dart:convert';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bugetify_app/app_homePage.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:http/http.dart';
-
-// final storage = FlutterSecureStorage();
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({
@@ -17,30 +15,40 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginState extends State<LoginForm> {
+  String _token = '';
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  void login(String email, password) async {
-    try {
-      var url = Uri.parse('http://192.168.1.12:5000/login');
-      Response response = await post(
-        url,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body:
-            jsonEncode(<String, String>{'email': email, 'password': password}),
-      );
-      if (response.statusCode == 200) {
-        final token = jsonDecode(response.body)['token'];
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => AppHome()));
-      } else {
-        print('verification failed');
-      }
-    } catch (e) {
-      print(e.toString());
+  Future<String> getToken() async {
+    var url = Uri.parse('http://192.168.1.13:5000/login');
+
+    final response = await post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': emailController.text,
+        'password': passwordController.text
+      }),
+    );
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      return jsonResponse['token'];
+    } else {
+      throw Exception('verification failed');
     }
+  }
+
+  Future<void> _login() async {
+    final String token = await getToken();
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('token', token);
+    setState(() {
+      _token = token;
+    });
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => AppHome()));
   }
 
   @override
@@ -87,12 +95,10 @@ class _LoginState extends State<LoginForm> {
               Hero(
                 tag: "login_btn",
                 child: ElevatedButton(
-                  onPressed: () {
-                    // login(emailController.text.toString(),
-                    //     passwordController.text.toString());
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => AppHome()));
-                  },
+                  onPressed: _login
+                  // Navigator.of(context).push(
+                  //     MaterialPageRoute(builder: (context) => AppHome()));
+                  ,
                   child: Text(
                     "Login".toUpperCase(),
                   ),

@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class PPP extends StatefulWidget {
@@ -12,34 +15,65 @@ class PPP extends StatefulWidget {
 }
 
 class _PPPState extends State<PPP> {
+  String _token = '';
   bool _showCharts = false;
   List<Expense> sales = [];
   String _selectedLocation = 'Bangalore';
 
-  Future<String> getJsonFromFirebase(String city) async {
-    try {
-      var url = Uri.parse('http://192.168.1.12:5000/PPPCalculation');
-      Response response = await post(
-        url,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: json.encode({'city': city}),
-      );
+  Future<List<dynamic>> getJsonFromFirebase(String city) async {
+    Completer<List<dynamic>> completer = Completer<List<dynamic>>();
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    var url = "http://192.168.1.13:5000/PPPCalculation";
+    http
+        .post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token!
+      },
+      body: jsonEncode(<String, String>{
+        'city': city,
+      }),
+    )
+        .then((response) {
       if (response.statusCode == 200) {
-        return response.body;
+        var jsonData = jsonDecode(response.body) as List<dynamic>;
+        completer.complete(jsonData); // Resolve the future with the data
       } else {
-        print('verification failed');
+        completer.completeError('Failed to load data from Firebase');
       }
-    } catch (e) {
-      print(e.toString());
-    }
-    return 'error';
+    }).catchError((error) {
+      completer.completeError(error);
+    });
+    // Return the future associated with the Completer object
+    return completer.future;
   }
 
+  // Future<String> getJsonFromFirebase(String city) async {
+  //   try {
+  //     var url = Uri.parse('http://172.20.10.13:5000/PPPCalculation');
+  //     Response response = await post(
+  //       url,
+  //       headers: <String, String>{
+  //         'Content-Type': 'application/json; charset=UTF-8',
+  //       },
+  //       body: json.encode({'city': city}),
+  //     );
+  //     if (response.statusCode == 200) {
+  //       return response.body;
+  //     } else {
+  //       print('verification failed');
+  //     }
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  //   return 'error';
+  // }
+
   Future loadExpenseData() async {
-    final String jsonString = await getJsonFromFirebase(_selectedLocation);
-    final dynamic jsonResponse = json.decode(jsonString);
+    final List<dynamic> jsonResponse =
+        await getJsonFromFirebase(_selectedLocation);
     for (Map<String, dynamic> i in jsonResponse) {
       sales.add(Expense.fromJson(i));
     }
@@ -47,7 +81,16 @@ class _PPPState extends State<PPP> {
 
   @override
   void initState() {
+    _getTokenFromPrefs();
     super.initState();
+  }
+
+  Future<void> _getTokenFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    setState(() {
+      _token = token!;
+    });
   }
 
   @override

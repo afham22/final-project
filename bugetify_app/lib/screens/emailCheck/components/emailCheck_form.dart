@@ -3,15 +3,11 @@ import 'package:bugetify_app/screens/Signup/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:http/http.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-// final storage = FlutterSecureStorage();
 
 class emailCheckForm extends StatefulWidget {
   const emailCheckForm({
     Key? key,
   }) : super(key: key);
-
   @override
   _CheckEmailState createState() => _CheckEmailState();
 }
@@ -19,11 +15,17 @@ class emailCheckForm extends StatefulWidget {
 class _CheckEmailState extends State<emailCheckForm> {
   TextEditingController checkEmailController = TextEditingController();
 
+  @override
+  void dispose() {
+    checkEmailController.dispose();
+    super.dispose();
+  }
+
   void checkEmail(String email) async {
     // final jwtToken = await storage.read(key: 'jwt_token');
 
     try {
-      var url = Uri.parse('http://192.168.1.12:5000/checkEmail');
+      var url = Uri.parse('http://192.168.1.13:5000/checkEmail');
 
       Response response = await post(
         url,
@@ -33,8 +35,14 @@ class _CheckEmailState extends State<emailCheckForm> {
         body: json.encode({'email': email}),
       );
       if (response.statusCode == 200) {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => signUpScreen()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => signUpScreen(checkEmailController),
+          ),
+        );
+        // Navigator.of(context).push(MaterialPageRoute(
+        //     builder: (context) => signUpScreen(checkEmailController)));
       } else {
         print('verification failed');
       }
@@ -68,11 +76,10 @@ class _CheckEmailState extends State<emailCheckForm> {
           ),
           const SizedBox(height: 16.0 / 2),
           ElevatedButton(
-            onPressed: () {
-              checkEmail(checkEmailController.text.toString());
-              // Navigator.of(context).push(
-              //     MaterialPageRoute(builder: (context) => signUpScreen()));
-            },
+            onPressed: () =>
+                EmailValidator.validate(checkEmailController.text.toString())
+                    ? {checkEmail(checkEmailController.text.toString())}
+                    : null,
             child: Text("Verify Email".toUpperCase()),
           ),
           const SizedBox(height: 16.0),

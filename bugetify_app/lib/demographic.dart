@@ -9,9 +9,11 @@
 //   }
 // }
 
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:http/http.dart' as http;
 
@@ -24,18 +26,37 @@ class Demographic extends StatefulWidget {
 
 class _DemographicState extends State<Demographic> {
   List<Expense> sales = [];
+  String _token = '';
+
   bool _showCharts = false;
 
-  Future<String> getJsonFromFirebase() async {
-    // return await rootBundle.loadString('assets/data.json');
-    String url = 'http://192.168.1.12:5000/DemoCompare';
-    http.Response response = await http.get(Uri.parse(url));
-    return response.body;
+  Future<List<dynamic>> getJsonFromFirebase() async {
+    Completer<List<dynamic>> completer = Completer<List<dynamic>>();
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    var url = "http://192.168.1.13:5000/DemoCompare";
+    http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token!
+      },
+    ).then((response) {
+      if (response.statusCode == 200) {
+        var jsonData = jsonDecode(response.body) as List<dynamic>;
+        completer.complete(jsonData); // Resolve the future with the data
+      } else {
+        completer.completeError('Failed to load data from Firebase');
+      }
+    }).catchError((error) {
+      completer.completeError(error);
+    });
+    // Return the future associated with the Completer object
+    return completer.future;
   }
 
   Future loadExpenseData() async {
-    final String jsonString = await getJsonFromFirebase();
-    final dynamic jsonResponse = json.decode(jsonString);
+    final List<dynamic> jsonResponse = await getJsonFromFirebase();
     for (Map<String, dynamic> i in jsonResponse) {
       sales.add(Expense.fromJson(i));
     }
@@ -43,8 +64,16 @@ class _DemographicState extends State<Demographic> {
 
   @override
   void initState() {
-    //  loadExpenseData();
+    _getTokenFromPrefs();
     super.initState();
+  }
+
+  Future<void> _getTokenFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    setState(() {
+      _token = token!;
+    });
   }
 
   @override

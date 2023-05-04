@@ -3,7 +3,8 @@ import '../../components/background.dart';
 import 'components/signUp_form.dart';
 
 class signUpScreen extends StatelessWidget {
-  const signUpScreen({Key? key}) : super(key: key);
+  final TextEditingController checkEmailController;
+  signUpScreen(this.checkEmailController);
 
   @override
   Widget build(BuildContext context) {
@@ -15,18 +16,18 @@ class signUpScreen extends StatelessWidget {
             color: Colors.pinkAccent,
           ),
         ),
-        body: const Background(
+        body: Background(
           child: SingleChildScrollView(
-            child: MobilesignUpScreen(),
+            child: MobilesignUpScreen(checkEmailController),
           ),
         ));
   }
 }
 
 class MobilesignUpScreen extends StatelessWidget {
-  const MobilesignUpScreen({
-    Key? key,
-  }) : super(key: key);
+  final TextEditingController checkEmailController;
+
+  MobilesignUpScreen(this.checkEmailController);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class MobilesignUpScreen extends StatelessWidget {
             Spacer(),
             Expanded(
               flex: 8,
-              child: signUpForm(),
+              child: signUpForm(checkEmailController),
             ),
             Spacer(),
           ],

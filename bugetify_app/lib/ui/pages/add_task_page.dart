@@ -69,7 +69,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Add Task",
+                "Add Transaction",
                 style: headingTextStyle,
               ),
               SizedBox(
@@ -82,7 +82,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
               ),
               InputField(
                   title: "Note",
-                  hint: "Enter note here.",
+                  hint: "Enter note here",
                   controller: _noteController),
               InputField(
                 title: "Date",
@@ -144,7 +144,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 children: [
                   _colorChips(),
                   MyButton(
-                    label: "Create Task",
+                    label: "Add Transaction",
                     onTap: () {
                       _validateInputs();
                     },
